@@ -14,12 +14,16 @@ function game:update(dt)
 			local dot2 = self.dots[j]
 			if i ~= j then
 				local dist = math.dist(dot1.x, dot1.y, dot2.x, dot2.y)
-				local angle = math.angle(dot1.x, dot1.y, dot2.x, dot2.y)
-				local g = dot2.mass/(dist^2)
-				if g < .3 then
-					gx = gx + math.cos(angle)*g
-					gy = gy + math.sin(angle)*g
-				end
+				--if dist <= dot1.size + dot2.size then
+				
+					--if dot1.size > dot2.size then
+					local angle = math.angle(dot1.x, dot1.y, dot2.x, dot2.y)
+					local g = dot2.mass/(dist^2)
+					--if g < .7 then
+						gx = gx + math.cos(angle)*g
+						gy = gy + math.sin(angle)*g
+					--end
+				--end
 			end
 		end
 		
@@ -58,7 +62,7 @@ function game:mousepressed(x, y, mbutton)
 	if mbutton == 'l' then
 		table.insert(self.dots, {x = x, y = y, size = math.random(3, 10), mass = math.random(1, 1000), gx = 0, gy = 0, vx = 0, vy = 0})
 	elseif mbutton == 'r' then
-		table.insert(self.dots, {x = x, y = y, size = math.random(20, 40), mass = math.random(10000, 100000), gx = 0, gy = 0, vx = 0, vy = 0})
+		table.insert(self.dots, {x = x, y = y, size = math.random(20, 40), mass = math.random(5000, 10000), gx = 0, gy = 0, vx = 0, vy = 0})
 	end
 end
 
