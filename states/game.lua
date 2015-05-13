@@ -3,29 +3,32 @@ game = {}
 function game:enter()
 	self.dotSystem = DotSystem:new()
 	
-	local canvasScale = 4 -- scale factor of canvas relative to screen size
+	local canvasScale = 16 -- scale factor of canvas relative to screen size
 	
 	self.canvas = love.graphics.newCanvas(love.graphics.getWidth()*canvasScale, love.graphics.getHeight()*canvasScale)
-	self.canvas:setFilter('linear', 'linear')
+	self.canvas:setFilter('linear', 'linear') -- line traces will look a little clearer when zoomed
 	
+	-- camera is centered on the canvas
 	self.camera = {x = -self.canvas:getWidth()/2 + love.graphics.getWidth()/2 , y = -self.canvas:getHeight()/2 + love.graphics.getHeight()/2, zoom = 1, speed = 400, targetBool = false, target = 1} -- centers the camera at the center of the canvas
 	
-	self.shader = love.graphics.newShader('shaders/sharpen.glsl')
+	--self.shader = love.graphics.newShader('shaders/sharpen.glsl')
 	--self.shader:send('stepSize', {1/love.graphics:getWidth(), 1/love.graphics:getHeight()})
 	
-	love.graphics.setBackgroundColor(255, 255, 255)
+	love.graphics.setBackgroundColor(255, 255, 255) -- the white background makes all the other colors brighter due to alpha transparency
 	
 	self.help = true
 	self.showCenter = true
 	self.freeze = false
+	self.hideObjects = false
+	self.absorb = false
 end
 
 function game:update(dt)
 	if not self.freeze then
-		self.dotSystem:update(dt/40) -- slows down the simulation
+		self.dotSystem:update(dt)
 	end
 	
-	if self.camera.targetBool then
+	if self.camera.targetBool then -- focused camera
 		self.camera.x = -self.dotSystem.dots[self.camera.target].x + love.graphics.getWidth()/2
 		self.camera.y = -self.dotSystem.dots[self.camera.target].y + love.graphics.getHeight()/2
 	end
@@ -40,6 +43,7 @@ function game:update(dt)
 	if love.keyboard.isDown('a', 'left') then self.camera.x = self.camera.x + speed end
 	if love.keyboard.isDown('d', 'right') then self.camera.x = self.camera.x - speed end
 	
+	-- if camera is moved by the player, exit focused camera mode
 	if self.camera.x ~= cameraX or self.camera.y ~= cameraY then
 		self.camera.targetBool = false
 	end
@@ -50,6 +54,7 @@ function game:keypressed(key, isrepeat)
         return
     end
 	
+	-- toggle help text
 	if key == 'f3' then
 		if self.help then
 			self.help = false
@@ -58,6 +63,7 @@ function game:keypressed(key, isrepeat)
 		end
 	end
 	
+	-- toggle crosshair in the center
 	if key == 'f4' then
 		if self.showCenter then
 			self.showCenter = false
@@ -66,6 +72,7 @@ function game:keypressed(key, isrepeat)
 		end
 	end
 	
+	-- reset everything
 	if key == 'f5' then -- clear
 		self.canvas:clear()
 		self.dotSystem.dots = {}
@@ -73,10 +80,30 @@ function game:keypressed(key, isrepeat)
 		self:resetCamera()
 	end
 	
+	-- move the camera to the origin
 	if key == 'f9' then
 		self:resetCamera()
 	end
 	
+	-- show only line traces
+	if key == 'f10' then
+		if self.hideObjects then
+			self.hideObjects = false
+		else
+			self.hideObjects = true
+		end
+	end
+	
+	-- bigger objects absorb smaller objects (Osmos)
+	if key == 'f11' then
+		if self.absorb then
+			self.absorb = false
+		else
+			self.absorb = true
+		end
+	end
+	
+	-- pause simulation, useful for setting up objects
 	if key == ' ' then
 		if self.freeze then
 			self.freeze = false
@@ -85,6 +112,7 @@ function game:keypressed(key, isrepeat)
 		end
 	end
 	
+	-- activate and switch through entities to focus the camera on
 	if #self.dotSystem.dots > 0 then
 		if key == ',' then -- <
 			if not self.camera.targetBool then
@@ -92,6 +120,8 @@ function game:keypressed(key, isrepeat)
 				self.camera.target = 1
 			elseif self.camera.target > 1 then
 				self.camera.target = self.camera.target - 1
+			else
+				self.camera.target = #self.dotSystem.dots
 			end
 			
 		elseif key == '.' then -- >
@@ -100,9 +130,12 @@ function game:keypressed(key, isrepeat)
 				self.camera.target = 1
 			elseif self.camera.target < #self.dotSystem.dots then
 				self.camera.target = self.camera.target + 1
+			else
+				self.camera.target = 1
 			end
 		end
 	end
+	
 	
 	self.dotSystem:keypressed(key, isrepeat)
 end
@@ -125,6 +158,7 @@ function game:mousepressed(x, y, mbutton)
 		self.camera.zoom = self.camera.zoom - .1
 	end
 	
+	-- change mouse coordinates to game coordinates
 	x = x - self.camera.x
 	y = y - self.camera.y
 	self.dotSystem:mousepressed(x, y, mbutton)
@@ -141,17 +175,20 @@ function game:draw()
 	love.graphics.push()
 	--love.graphics.setShader(self.shader)
 	
+	-- translate to origin, scale, translate back
 	love.graphics.translate(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
 	love.graphics.scale(self.camera.zoom)
 	love.graphics.translate(-love.graphics.getWidth()/2, -love.graphics.getHeight()/2)
 	
 	love.graphics.translate(self.camera.x, self.camera.y)
 	
-	if self.dotSystem.lines then
+	if self.dotSystem.lines then -- draw line traces
 		love.graphics.draw(self.canvas)
 	end
 	
-	self.dotSystem:draw()
+	if not self.hideObjects then -- draw entities
+		self.dotSystem:draw()
+	end
 	
 	if self.showCenter then -- draw axis at the center
 		love.graphics.setColor(0, 0, 0)
@@ -160,7 +197,7 @@ function game:draw()
 		love.graphics.line(self.canvas:getWidth()/2, self.canvas:getHeight()/2 - d, self.canvas:getWidth()/2, self.canvas:getHeight()/2 + d)
 	end
 	
-	love.graphics.setShader()
+	--love.graphics.setShader()
 	love.graphics.pop()
 	
 	love.graphics.setColor(13, 15, 122)
@@ -186,8 +223,8 @@ function game:draw()
 		
 		love.graphics.print('Clear (F5)', 5, 185)
 		
-		love.graphics.print('Small mass (LMB)', 5, 215)
-		love.graphics.print('Large mass (RMB)', 5, 245)
+		love.graphics.print('Small mass (LMB [+ ctrl])', 5, 215)
+		love.graphics.print('Large mass (RMB [+ ctrl])', 5, 245)
 		love.graphics.print('Camera (WASD/Shift)', 5, 275)
 		
 		local lineStr = 'off'
@@ -195,10 +232,15 @@ function game:draw()
 		love.graphics.print('Freeze (space): '..lineStr, 5, 305)
 		
 		love.graphics.print('Origin (F9)', 5, 335)
-		love.graphics.print('Zoom (wheel): '..self.camera.zoom, 5, 365)
+		love.graphics.print('Hide Objects (F10)', 5, 365)
+		love.graphics.print('Zoom (wheel): '..self.camera.zoom, 5, 395)
 		
-		love.graphics.print('Entities: '..#self.dotSystem.dots, 5, 395)
-		love.graphics.print('Entity Focus (< / >): '..tostring(self.camera.target), 5, 425)
+		love.graphics.print('Entities: '..#self.dotSystem.dots, 5, 425)
+		love.graphics.print('Entity Focus (< / >): '..tostring(self.camera.target), 5, 455)
+		
+		local lineStr = 'off'
+		if self.absorb then lineStr = 'on' end
+		love.graphics.print('Absorb (F11): '..lineStr, 5, 485)
 	end
 end
 

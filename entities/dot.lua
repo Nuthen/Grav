@@ -1,22 +1,29 @@
 Dot = class('Dot')
 
-function Dot:initialize(x, y, angle, speed, directions, super)
+function Dot:initialize(x, y, angle, speed, mass, directions, super, gigantic)
 	self.x = x
 	self.y = y
-	self.super = super or false
-	self.directions = directions or 0
+	self.super = super or false -- if true, a large, immobile object
+	self.gigantic = gigantic or false -- if true for a super object, then it is even larger
+	self.directions = directions or 0 -- 0 means no restriction on angle of movement
 	
 	self.lastX = x
 	self.lastY = y
 	
 	if self.super then
-		local sizeFactor = math.random(5000, 10000)
-		self.size = math.floor(sizeFactor/100)+5
-		self.mass = sizeFactor
+		if gigantic then
+			local sizeFactor = math.random(20000, 1000000)
+			self.size = math.sqrt(math.floor(sizeFactor/100))
+			self.mass = mass or sizeFactor
+		else
+			local sizeFactor = math.random(5000, 10000)
+			self.size = math.floor(sizeFactor/100)+5
+			self.mass = mass or sizeFactor
+		end
 	else
 		local sizeFactor = math.random(1, 2000)
 		self.size = math.floor(sizeFactor/50)+5
-		self.mass = sizeFactor
+		self.mass = mass or sizeFactor
 	end
 	
 	self.gx = 0
@@ -34,9 +41,11 @@ function Dot:initialize(x, y, angle, speed, directions, super)
 	
 	self.color = {math.random(255), math.random(255), math.random(255)}
 	
-	if self.super then
+	if self.super then -- a super object has translucency
 		self.color[4] = 150
 	end
+	
+	self.destroy = false
 end
 
 function Dot:update(dt)
@@ -46,25 +55,27 @@ function Dot:update(dt)
 	self.angle = math.angle(0, 0, self.vx, self.vy)
 	self.speed = math.sqrt(self.vx^2 + self.vy^2)
 	
-	if self.directions > 0 then
+	if self.directions > 0 then -- calculate angle if limited
 		self.angle = math.floor((self.angle/math.rad(360/self.directions)) + .5)*math.rad(360/self.directions)
 	end
 	
-	--self.x = self.x + self.vx*dt
-	--self.y = self.y + self.vy*dt
-	
+	-- used to disconnect the variables
 	local lastX = self.x
 	local lastY = self.y
 	
 	self.lastX = lastX
 	self.lastY = lastY
 	
-	self.x = self.x + math.cos(self.angle)*self.speed
-	self.y = self.y + math.sin(self.angle)*self.speed
+	if not self.super then -- super objects will not move
+		self.x = self.x + math.cos(self.angle)*self.speed
+		self.y = self.y + math.sin(self.angle)*self.speed
+	end
 end
 
 function Dot:draw()
-	love.graphics.setColor(self.color[1], self.color[2], self.color[3], 150)
+	local alpha = 150
+	if self.mass == 0 or self.gigantic then alpha = 255 end
+	love.graphics.setColor(self.color[1], self.color[2], self.color[3], alpha)
 	
 	if self.super then
 		love.graphics.circle('fill', self.x, self.y, self.size)
@@ -73,13 +84,10 @@ function Dot:draw()
 	if self.angle then
 		if not self.super then
 			local w = self.size*2/5
-			local h = self.size
+			local h = self.speed * 2 -- the faster it is moving, the taller the object will be
 			love.graphics.polygon('fill', self.x + math.cos(self.angle - math.rad(90))*w, self.y + math.sin(self.angle - math.rad(90))*w, 
 												  self.x + math.cos(self.angle + math.rad(90))*w, self.y + math.sin(self.angle + math.rad(90))*w,
 												  self.x + math.cos(self.angle)*h, self.y + math.sin(self.angle)*h)
 		end
-	
-		love.graphics.setColor(255, 0, 0)
-		love.graphics.line(self.x, self.y, self.x+math.cos(self.angle)*self.speed, self.y+math.sin(self.angle)*self.speed)
 	end
 end
