@@ -82,11 +82,6 @@ function DotSystem:keypressed(key, isrepeat)
 		self:toggleLimit()
 	end
 	
-	if key == 'f5' then -- clear
-		game.canvas:clear()
-		self.dots = {}
-	end
-	
 	if key == '=' then -- +
 		self.directions = self.directions + 1
 	elseif key == '-' and self.directions > 0 then
@@ -95,9 +90,11 @@ function DotSystem:keypressed(key, isrepeat)
 end
 
 function DotSystem:mousepressed(x, y, mbutton)
-	self.spawning = true
-	self.spawnX = x
-	self.spawnY = y
+	if mbutton == 'l' or mbutton == 'r' then
+		self.spawning = true
+		self.spawnX = x
+		self.spawnY = y
+	end
 end
 
 function DotSystem:mousereleased(x, y, mbutton)

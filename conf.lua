@@ -1,14 +1,14 @@
 function love.conf(t)
     t.identity = nil                   -- The name of the save directory (string)
-    t.version = "0.9.1"                -- The LÖVE version this game was made for (string)
+    t.version = "0.9.2"                -- The LÖVE version this game was made for (string)
     t.console = false                  -- Attach a console (boolean, Windows only)
 
-    t.window.title = "Untitled"        -- The window title (string)
+    t.window.title = "Gravity"        -- The window title (string)
     t.window.icon = nil                -- Filepath to an image to use as the window's icon (string)
     t.window.width = 1024              -- The window width (number)
     t.window.height = 768              -- The window height (number)
     t.window.borderless = false        -- Remove all border visuals from the window (boolean)
-    t.window.resizable = false         -- Let the window be user-resizable (boolean)
+    t.window.resizable = true         -- Let the window be user-resizable (boolean)
     t.window.minwidth = 1              -- Minimum window width if the window is resizable (number)
     t.window.minheight = 1             -- Minimum window height if the window is resizable (number)
     t.window.fullscreen = false        -- Enable fullscreen (boolean)
@@ -35,8 +35,8 @@ end
 config = {
     debug = true,
 
-    gameTitle = "Untitled",
-    windowTitle = "Untitled",
+    gameTitle = "Gravity",
+    windowTitle = "Gravity",
     windowIcon = 'img/icon.png',
 
     -- see: http://love2d.org/wiki/love.graphics.setDefaultFilter

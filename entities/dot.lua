@@ -15,7 +15,7 @@ function Dot:initialize(x, y, angle, speed, directions, super)
 		self.mass = sizeFactor
 	else
 		local sizeFactor = math.random(1, 2000)
-		self.size = math.floor(sizeFactor/100)+5
+		self.size = math.floor(sizeFactor/50)+5
 		self.mass = sizeFactor
 	end
 	
@@ -65,11 +65,21 @@ end
 
 function Dot:draw()
 	love.graphics.setColor(self.color[1], self.color[2], self.color[3], 150)
-	love.graphics.circle('fill', self.x, self.y, self.size)
-	love.graphics.setColor(255, 0, 0)
-	--love.graphics.line(self.x, self.y, self.x+self.vx, self.y+self.vy)
+	
+	if self.super then
+		love.graphics.circle('fill', self.x, self.y, self.size)
+	end
 	
 	if self.angle then
+		if not self.super then
+			local w = self.size*2/5
+			local h = self.size
+			love.graphics.polygon('fill', self.x + math.cos(self.angle - math.rad(90))*w, self.y + math.sin(self.angle - math.rad(90))*w, 
+												  self.x + math.cos(self.angle + math.rad(90))*w, self.y + math.sin(self.angle + math.rad(90))*w,
+												  self.x + math.cos(self.angle)*h, self.y + math.sin(self.angle)*h)
+		end
+	
+		love.graphics.setColor(255, 0, 0)
 		love.graphics.line(self.x, self.y, self.x+math.cos(self.angle)*self.speed, self.y+math.sin(self.angle)*self.speed)
 	end
 end
