@@ -1,57 +1,41 @@
 game = {}
 
 function game:enter()
-    self.dots = {}
+	self.dotSystem = DotSystem:new()
 	
-	self.camera = {x = 0, y = 0}
+	self.camera = {x = -love.graphics.getWidth()/2, y = -love.graphics.getHeight()/2, speed = 200}
+	
+	self.canvas = love.graphics.newCanvas(love.graphics.getWidth()*2, love.graphics.getHeight()*2)
+	
+	love.graphics.setBackgroundColor(255, 255, 255)
+	
+	self.help = true
 end
 
 function game:update(dt)
-	for i = 1, #self.dots do
-		local dot1 = self.dots[i]
-		local gx, gy = 0, 0
-		for j = 1, #self.dots do
-			local dot2 = self.dots[j]
-			if i ~= j then
-				local dist = math.dist(dot1.x, dot1.y, dot2.x, dot2.y)
-				--if dist <= dot1.size + dot2.size then
-				
-					--if dot1.size > dot2.size then
-					local angle = math.angle(dot1.x, dot1.y, dot2.x, dot2.y)
-					local g = dot2.mass/(dist^2)
-					--if g < .7 then
-						gx = gx + math.cos(angle)*g
-						gy = gy + math.sin(angle)*g
-					--end
-				--end
-			end
-		end
-		
-		dot1.gx = gx
-		dot1.gy = gy
-	end
+	self.dotSystem:update(dt)
 	
-	for i = 1, #self.dots do
-		local dot = self.dots[i]
-		dot.vx = dot.vx + dot.gx
-		dot.vy = dot.vy + dot.gy
-		
-		dot.x = dot.x + dot.vx
-		dot.y = dot.y + dot.vy
-	end
-	
-	
-	local change = 30*dt
-	if love.keyboard.isDown('w') then self.camera.y = self.camera.y - change end
-	if love.keyboard.isDown('s') then self.camera.y = self.camera.y + change end
-	if love.keyboard.isDown('a') then self.camera.x = self.camera.x - change end
-	if love.keyboard.isDown('d') then self.camera.x = self.camera.x + change end
+	local speed = self.camera.speed*dt
+	if love.keyboard.isDown('w') then self.camera.y = self.camera.y + speed end
+	if love.keyboard.isDown('s') then self.camera.y = self.camera.y - speed end
+	if love.keyboard.isDown('a') then self.camera.x = self.camera.x + speed end
+	if love.keyboard.isDown('d') then self.camera.x = self.camera.x - speed end
 end
 
 function game:keypressed(key, isrepeat)
     if console.keypressed(key) then
         return
     end
+	
+	if key == 'f3' then
+		if self.help then
+			self.help = false
+		else
+			self.help = true
+		end
+	end
+	
+	self.dotSystem:keypressed(key, isrepeat)
 end
 
 function game:mousepressed(x, y, mbutton)
@@ -59,24 +43,59 @@ function game:mousepressed(x, y, mbutton)
         return
     end
 	
-	if mbutton == 'l' then
-		table.insert(self.dots, {x = x, y = y, size = math.random(3, 10), mass = math.random(1, 1000), gx = 0, gy = 0, vx = 0, vy = 0})
-	elseif mbutton == 'r' then
-		table.insert(self.dots, {x = x, y = y, size = math.random(20, 40), mass = math.random(5000, 10000), gx = 0, gy = 0, vx = 0, vy = 0})
-	end
+	x = x - self.camera.x
+	y = y - self.camera.y
+	self.dotSystem:mousepressed(x, y, mbutton)
 end
 
 function game:draw()
-	--love.graphics.translate(self.camera.x, self.camera.y)
-
-    local text = "This is the game"
-    local x = love.window.getWidth()/2 - font[48]:getWidth(text)/2
-    local y = love.window.getHeight()/2
-    love.graphics.setFont(font[48])
-    --love.graphics.print(text, x, y)
+    love.graphics.setFont(font[32])
+	love.graphics.setColor(255, 255, 255)
 	
-	for i = 1, #self.dots do
-		local dot = self.dots[i]
-		love.graphics.circle('fill', dot.x, dot.y, dot.size)
+	love.graphics.push()
+	
+	love.graphics.translate(self.camera.x, self.camera.y)
+	
+	if self.dotSystem.lines then
+		love.graphics.draw(self.canvas)
+	end
+	
+	self.dotSystem:draw()
+	
+	love.graphics.pop()
+	
+	love.graphics.setColor(13, 15, 122)
+	love.graphics.print(love.timer.getFPS(), 5, 5)
+	
+	if self.help then
+		local lineStr = 'off'
+		if self.dotSystem.lines then lineStr = 'on' end
+		love.graphics.print('Trace Lines (F1): '..lineStr, 5, 35)
+		
+		local lineStr = 'off'
+		if self.dotSystem.limit then lineStr = 'on' end
+		love.graphics.print('Limit Movement (F2): '..lineStr, 5, 65)
+		love.graphics.print('Directions (+/-): '..self.dotSystem.directions, 40, 95)
+		
+		love.graphics.print('Clear (F5)', 5, 125)
+		love.graphics.print('Small mass (LMB)', 5, 155)
+		love.graphics.print('Large mass (RMB)', 5, 185)
+		love.graphics.print('Camera (WASD)', 5, 215)
+		
+		love.graphics.print('Hide Help (F3)', 5, 285)
 	end
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+

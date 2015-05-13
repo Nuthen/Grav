@@ -73,3 +73,8 @@ function findIntersect(l1p1x,l1p1y, l1p2x,l1p2y, l2p1x,l2p1y, l2p2x,l2p2y, seg1,
     end
     return x,y
 end
+
+
+function math.midpoint(x1, y1, x2, y2)
+	return (x1+x2)/2, (y1+y2)/2
+end

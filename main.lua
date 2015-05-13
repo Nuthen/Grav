@@ -4,13 +4,17 @@ vector = require 'libs.vector'
 state = require 'libs.state'
 tween = require 'libs.tween'
 console = require 'libs.console'
+require 'libs.generalmath'
 require 'libs.util'
 
 -- gamestates
 require 'states.menu'
 require 'states.game'
 
-require 'libs.generalmath'
+-- entities
+require 'entities.dotSystem'
+require 'entities.dot'
+
 
 function love.load()
 	love.window.setTitle(config.windowTitle)
