@@ -6,8 +6,12 @@ function game:enter()
 	local canvasScale = 4 -- scale factor of canvas relative to screen size
 	
 	self.canvas = love.graphics.newCanvas(love.graphics.getWidth()*canvasScale, love.graphics.getHeight()*canvasScale)
+	self.canvas:setFilter('linear', 'linear')
 	
 	self.camera = {x = -self.canvas:getWidth()/2 + love.graphics.getWidth()/2 , y = -self.canvas:getHeight()/2 + love.graphics.getHeight()/2, zoom = 1, speed = 400, targetBool = false, target = 1} -- centers the camera at the center of the canvas
+	
+	self.shader = love.graphics.newShader('shaders/sharpen.glsl')
+	--self.shader:send('stepSize', {1/love.graphics:getWidth(), 1/love.graphics:getHeight()})
 	
 	love.graphics.setBackgroundColor(255, 255, 255)
 	
@@ -83,13 +87,18 @@ function game:keypressed(key, isrepeat)
 	
 	if #self.dotSystem.dots > 0 then
 		if key == ',' then -- <
-			self.camera.targetBool = true
-			if self.camera.target > 1 then
+			if not self.camera.targetBool then
+				self.camera.targetBool = true
+				self.camera.target = 1
+			elseif self.camera.target > 1 then
 				self.camera.target = self.camera.target - 1
 			end
+			
 		elseif key == '.' then -- >
-			self.camera.targetBool = true
-			if self.camera.target < #self.dotSystem.dots then
+			if not self.camera.targetBool then
+				self.camera.targetBool = true
+				self.camera.target = 1
+			elseif self.camera.target < #self.dotSystem.dots then
 				self.camera.target = self.camera.target + 1
 			end
 		end
@@ -130,6 +139,7 @@ function game:draw()
 	love.graphics.setColor(255, 255, 255)
 	
 	love.graphics.push()
+	--love.graphics.setShader(self.shader)
 	
 	love.graphics.translate(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
 	love.graphics.scale(self.camera.zoom)
@@ -150,6 +160,7 @@ function game:draw()
 		love.graphics.line(self.canvas:getWidth()/2, self.canvas:getHeight()/2 - d, self.canvas:getWidth()/2, self.canvas:getHeight()/2 + d)
 	end
 	
+	love.graphics.setShader()
 	love.graphics.pop()
 	
 	love.graphics.setColor(13, 15, 122)
