@@ -68,5 +68,8 @@ function Dot:draw()
 	love.graphics.circle('fill', self.x, self.y, self.size)
 	love.graphics.setColor(255, 0, 0)
 	--love.graphics.line(self.x, self.y, self.x+self.vx, self.y+self.vy)
-	love.graphics.line(self.x, self.y, self.x+math.cos(self.angle)*self.speed, self.y+math.sin(self.angle)*self.speed)
+	
+	if self.angle then
+		love.graphics.line(self.x, self.y, self.x+math.cos(self.angle)*self.speed, self.y+math.sin(self.angle)*self.speed)
+	end
 end

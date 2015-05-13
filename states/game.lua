@@ -13,6 +13,7 @@ function game:enter()
 end
 
 function game:update(dt)
+	self.dotSystem:update(dt/40) -- slows down the simulation
 	
 	local speed = self.camera.speed*dt
 	if love.keyboard.isDown('w') then self.camera.y = self.camera.y + speed end
