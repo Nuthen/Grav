@@ -13,7 +13,6 @@ function game:enter()
 end
 
 function game:update(dt)
-	self.dotSystem:update(dt)
 	
 	local speed = self.camera.speed*dt
 	if love.keyboard.isDown('w') then self.camera.y = self.camera.y + speed end
@@ -46,6 +45,10 @@ function game:mousepressed(x, y, mbutton)
 	x = x - self.camera.x
 	y = y - self.camera.y
 	self.dotSystem:mousepressed(x, y, mbutton)
+end
+
+function game:mousereleased(x, y, button)
+	self.dotSystem:mousereleased(x, y, button)
 end
 
 function game:draw()

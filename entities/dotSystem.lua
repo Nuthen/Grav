@@ -8,6 +8,10 @@ function DotSystem:initialize()
 	self.lines = true
 	self.limit = false
 	self.directions = 8
+	
+	self.spawning = false
+	self.spawnX = 0
+	self.spawnY = 0
 end
 
 function DotSystem:toggleLines()
@@ -91,20 +95,39 @@ function DotSystem:keypressed(key, isrepeat)
 end
 
 function DotSystem:mousepressed(x, y, mbutton)
+	self.spawning = true
+	self.spawnX = x
+	self.spawnY = y
+end
+
+function DotSystem:mousereleased(x, y, mbutton)
+	self.spawning = false
+	
 	local directions = self.directions
 	if not self.limit then
 		directions = 0
 	end
-
+	
+	local vx = x - game.camera.x - self.spawnX
+	local vy = y - game.camera.y - self.spawnY
+	
+	local angle = math.angle(0, 0, vx, vy)
+	local speed = math.sqrt(vx^2 + vy^2)
+	
 	if mbutton == 'l' then
-		table.insert(self.dots, Dot:new(x, y, directions))
+		table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, directions))
 	elseif mbutton == 'r' then
-		table.insert(self.dots, Dot:new(x, y, directions, true))
+		table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, directions, true))
 	end
 end
 
 function DotSystem:draw()
 	for i, dot in ipairs(self.dots) do
 		dot:draw()
+	end
+	
+	if self.spawning then
+		love.graphics.setColor(255, 0, 0)
+		love.graphics.line(self.spawnX, self.spawnY, love.mouse.getX() - game.camera.x, love.mouse.getY() - game.camera.y)
 	end
 end

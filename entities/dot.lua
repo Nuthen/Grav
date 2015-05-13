@@ -1,6 +1,6 @@
 Dot = class('Dot')
 
-function Dot:initialize(x, y, directions, super)
+function Dot:initialize(x, y, angle, speed, directions, super)
 	self.x = x
 	self.y = y
 	self.super = super or false
@@ -23,8 +23,14 @@ function Dot:initialize(x, y, directions, super)
 	self.gy = 0
 	self.vx = 0
 	self.vy = 0
-	self.angle = 0
-	self.speed = 0
+	
+	if not super then
+		self.angle = angle
+		self.speed = speed/50
+		
+		self.vx = math.cos(self.angle)*self.speed
+		self.vy = math.sin(self.angle)*self.speed
+	end
 	
 	self.color = {math.random(255), math.random(255), math.random(255)}
 	
@@ -38,7 +44,7 @@ function Dot:update(dt)
 	self.vy = self.vy + self.gy
 	
 	self.angle = math.angle(0, 0, self.vx, self.vy)
-	self.speed = math.sqrt(self.vx^2 + self.vy^2)/4
+	self.speed = math.sqrt(self.vx^2 + self.vy^2)
 	
 	if self.directions > 0 then
 		self.angle = math.floor((self.angle/math.rad(360/self.directions)) + .5)*math.rad(360/self.directions)
