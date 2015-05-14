@@ -42,6 +42,9 @@ function DotSystem:update(dt)
 				local angle = math.angle(dot.x, dot.y, dot2.x, dot2.y)
 				
 				local g = dot2.mass/(dist^2) -- gravity formula
+				if dot2.repel then
+					g = g * -1
+				end
 				
 				if g > self.maxG then g = self.maxG end
 				gx = gx + math.cos(angle)*g
@@ -62,6 +65,10 @@ function DotSystem:update(dt)
 		local dot = self.dots[i]
 		if dot.destroy then
 			table.remove(self.dots, i)
+			
+			if i == game.camera.target then
+				game.camera.targetBool = false
+			end
 		end
 	end
 	
@@ -175,6 +182,12 @@ function DotSystem:mousereleased(x, y, mbutton)
 		else
 			table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, nil, directions, true))
 		end
+	elseif mbutton == 'm' then -- repel
+		if special then -- gigantic
+			table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, nil, directions, true, true, true))
+		else
+			table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, nil, directions, true, false, true))
+		end
 	end
 end
 
@@ -191,5 +204,10 @@ function DotSystem:draw()
 		end
 		
 		love.graphics.line(self.spawnX, self.spawnY, love.mouse.getX() - game.camera.x, love.mouse.getY() - game.camera.y) -- initial vector indicator when dragging
+		local angle = math.angle(self.spawnX, self.spawnY, love.mouse.getX() - game.camera.x, love.mouse.getY() - game.camera.y)
+		local turn = 30 -- degrees
+		local length = 30
+		love.graphics.line(love.mouse.getX() - game.camera.x, love.mouse.getY() - game.camera.y, love.mouse.getX() - game.camera.x + math.cos(angle + math.rad(180-turn)) * length, love.mouse.getY() - game.camera.y + math.sin(angle + math.rad(180-turn)) * length)
+		love.graphics.line(love.mouse.getX() - game.camera.x, love.mouse.getY() - game.camera.y, love.mouse.getX() - game.camera.x + math.cos(angle - math.rad(180-turn)) * length, love.mouse.getY() - game.camera.y + math.sin(angle - math.rad(180-turn)) * length)
 	end
 end

@@ -1,11 +1,12 @@
 Dot = class('Dot')
 
-function Dot:initialize(x, y, angle, speed, mass, directions, super, gigantic)
+function Dot:initialize(x, y, angle, speed, mass, directions, super, gigantic, repel)
 	self.x = x
 	self.y = y
 	self.super = super or false -- if true, a large, immobile object
 	self.gigantic = gigantic or false -- if true for a super object, then it is even larger
 	self.directions = directions or 0 -- 0 means no restriction on angle of movement
+	self.repel = repel or false
 	
 	self.lastX = x
 	self.lastY = y

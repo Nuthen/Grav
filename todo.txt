@@ -1,8 +1,13 @@
 X-set size to speed 
--clean code
--make 3 objects (add large object)
+X-clean code
+Z-make 3 objects (add large object)
 X-bigger canvas
 X-absorb mode
 X-massless objects
 Z-experiment with larger objects moving
--icon
+X-icon
+
+- add camera focus rotation (switch between them)
+- add a good UI
+- perhaps more game-like feautures
+- repel

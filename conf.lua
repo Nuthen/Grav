@@ -37,7 +37,7 @@ config = {
 
     gameTitle = "Gravity",
     windowTitle = "Gravity",
-    windowIcon = 'img/icon.png',
+    windowIcon = 'img/icon-dots.png',
 
     -- see: http://love2d.org/wiki/love.graphics.setDefaultFilter
     filterModeMin = "nearest",

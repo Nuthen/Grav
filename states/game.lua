@@ -29,8 +29,10 @@ function game:update(dt)
 	end
 	
 	if self.camera.targetBool then -- focused camera
-		self.camera.x = -self.dotSystem.dots[self.camera.target].x + love.graphics.getWidth()/2
-		self.camera.y = -self.dotSystem.dots[self.camera.target].y + love.graphics.getHeight()/2
+		if self.dotSystems.dots[self.camera.target] then
+			self.camera.x = -self.dotSystem.dots[self.camera.target].x + love.graphics.getWidth()/2
+			self.camera.y = -self.dotSystem.dots[self.camera.target].y + love.graphics.getHeight()/2
+		end
 	end
 	
 	local cameraX = self.camera.x
@@ -241,6 +243,10 @@ function game:draw()
 		local lineStr = 'off'
 		if self.absorb then lineStr = 'on' end
 		love.graphics.print('Absorb (F11): '..lineStr, 5, 485)
+		
+		if self.camera.targetBool then
+			love.graphics.print('Entity mass: '..self.dotSystem.dots[self.camera.target].mass, 5, 515)
+		end
 	end
 end
 
