@@ -10,4 +10,11 @@ X-icon
 - add camera focus rotation (switch between them)
 - add a good UI
 - perhaps more game-like feautures
-- repel
+X- repel
+
+- grid snapping (binded to alt I guess)
+- account for zoom on clicks
+- show mass for followed entity
+
+- included a way to tell the player about everything they can create
+- add a visual way to tell type of an entity

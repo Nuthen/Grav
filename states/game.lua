@@ -1,8 +1,14 @@
 game = {}
 
 function game:enter()
-	self.dotSystem = DotSystem:new()
+	love.graphics.setBackgroundColor(255, 255, 255) -- the white background makes all the other colors brighter due to alpha transparency
 	
+	self.help = true
+	self.showCenter = true
+	self.freeze = false
+	self.hideObjects = false
+	self.absorb = false
+	self.traceWidth = 2
 	local canvasScale = 16 -- scale factor of canvas relative to screen size
 	
 	self.canvas = love.graphics.newCanvas(love.graphics.getWidth()*canvasScale, love.graphics.getHeight()*canvasScale)
@@ -11,16 +17,15 @@ function game:enter()
 	-- camera is centered on the canvas
 	self.camera = {x = -self.canvas:getWidth()/2 + love.graphics.getWidth()/2 , y = -self.canvas:getHeight()/2 + love.graphics.getHeight()/2, zoom = 1, speed = 400, targetBool = false, target = 1} -- centers the camera at the center of the canvas
 	
+	self.dotSystem = DotSystem:new()
+	
 	--self.shader = love.graphics.newShader('shaders/sharpen.glsl')
 	--self.shader:send('stepSize', {1/love.graphics:getWidth(), 1/love.graphics:getHeight()})
 	
-	love.graphics.setBackgroundColor(255, 255, 255) -- the white background makes all the other colors brighter due to alpha transparency
-	
-	self.help = true
-	self.showCenter = true
-	self.freeze = false
-	self.hideObjects = false
-	self.absorb = false
+	self.pressX = 0
+	self.pressY = 0
+	self.releaseX = 0
+	self.releaseY = 0
 end
 
 function game:update(dt)
@@ -29,7 +34,7 @@ function game:update(dt)
 	end
 	
 	if self.camera.targetBool then -- focused camera
-		if self.dotSystems.dots[self.camera.target] then
+		if self.dotSystem.dots[self.camera.target] then
 			self.camera.x = -self.dotSystem.dots[self.camera.target].x + love.graphics.getWidth()/2
 			self.camera.y = -self.dotSystem.dots[self.camera.target].y + love.graphics.getHeight()/2
 		end
@@ -163,16 +168,45 @@ function game:mousepressed(x, y, mbutton)
 	-- change mouse coordinates to game coordinates
 	x = x - self.camera.x
 	y = y - self.camera.y
+	
+
+	
+	-- translate to origin, scale, translate back
+	local zoom = math.abs(self.camera.zoom)
+	if self.camera.zoom == 1 then zoom = 1 end
+	--x, y = x - self.canvas:getWidth()/2, y -  self.canvas:getHeight()/2
+	self.pressX = x
+	self.pressY = y
+	--x, y = x / zoom, y / zoom
+	self.releaseX = x
+	self.releaseY = y
+	--x, y = x + self.canvas:getWidth()/2, y +  self.canvas:getHeight()/2
+	
+	
+	
+	
 	self.dotSystem:mousepressed(x, y, mbutton)
 end
 
 function game:mousereleased(x, y, button)
+	-- change mouse coordinates to game coordinates
+	x = x - self.camera.x
+	y = y - self.camera.y
+
+	-- translate to origin, scale, translate back
+	local zoom = math.abs(self.camera.zoom)
+	if self.camera.zoom == 1 then zoom = 1 end
+	--x, y = x - self.canvas:getWidth()/2, y -  self.canvas:getHeight()/2
+	--x, y = x / zoom, y / zoom
+	--x, y = x + self.canvas:getWidth()/2, y +  self.canvas:getHeight()/2
+	
 	self.dotSystem:mousereleased(x, y, button)
 end
 
 function game:draw()
     love.graphics.setFont(font[32])
 	love.graphics.setColor(255, 255, 255)
+	love.graphics.setLineWidth(self.traceWidth)
 	
 	love.graphics.push()
 	--love.graphics.setShader(self.shader)
@@ -244,10 +278,12 @@ function game:draw()
 		if self.absorb then lineStr = 'on' end
 		love.graphics.print('Absorb (F11): '..lineStr, 5, 485)
 		
-		if self.camera.targetBool then
+		if self.camera.targetBool and self.dotSystem.dots[self.camera.target] then
 			love.graphics.print('Entity mass: '..self.dotSystem.dots[self.camera.target].mass, 5, 515)
 		end
 	end
+	
+	love.graphics.print(self.pressX..' '..self.pressY..' | '..self.releaseX..' '..self.releaseY, 5, 555)
 end
 
 
