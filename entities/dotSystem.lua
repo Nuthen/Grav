@@ -14,6 +14,8 @@ function DotSystem:initialize()
 	self.spawnY = 0
 	
 	self.special = false
+	
+	self.traceAlpha = 255
 end
 
 function DotSystem:toggleLines() -- toggle line traces
@@ -82,7 +84,7 @@ function DotSystem:update(dt)
 			love.graphics.translate(game.camera.x, game.camera.y)
 			
 			for i, dot in ipairs(self.dots) do
-				love.graphics.setColor(dot.color[1], dot.color[2], dot.color[3], 125)
+				love.graphics.setColor(dot.color[1], dot.color[2], dot.color[3], self.traceAlpha)
 				love.graphics.line(dot.lastX - game.camera.x, dot.lastY - game.camera.y, dot.x - game.camera.x, dot.y - game.camera.y) -- draws a line between each objects current and last point on the canvas
 			end
 			

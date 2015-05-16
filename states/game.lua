@@ -1,8 +1,15 @@
 game = {}
 
 function game:enter()
-	self.dotSystem = DotSystem:new()
+	love.graphics.setBackgroundColor(255, 255, 255) -- the white background makes all the other colors brighter due to alpha transparency
+
 	
+	self.help = true
+	self.showCenter = true
+	self.freeze = false
+	self.hideObjects = false
+	self.absorb = false
+	self.traceWidth = 2
 	local canvasScale = 16 -- scale factor of canvas relative to screen size
 	
 	
@@ -14,22 +21,12 @@ function game:enter()
 	self.canvas:setFilter('linear', 'linear') -- line traces will look a little clearer when zoomed
 	
 	-- camera is centered on the canvas
-<<<<<<< HEAD
-	self.camera = {x = 0 , y = 0, zoom = 1, speed = 400, targetBool = false, target = 1} -- centers the camera at the center of the canvas
-=======
-	self.camera = {x = -self.canvas:getWidth()/2 + love.graphics.getWidth()/2 , y = -self.canvas:getHeight()/2 + love.graphics.getHeight()/2, zoom = 1, speed = 400, targetBool = false, target = 1} -- centers the camera at the center of the canvas
->>>>>>> parent of 754e2ca... good update
+	self.camera = {x = self.startX, y = self.startY, zoom = 1, speed = 400, targetBool = false, target = 1} -- centers the camera at the center of the canvas
+	
+	self.dotSystem = DotSystem:new()
 	
 	--self.shader = love.graphics.newShader('shaders/sharpen.glsl')
 	--self.shader:send('stepSize', {1/love.graphics:getWidth(), 1/love.graphics:getHeight()})
-	
-	love.graphics.setBackgroundColor(255, 255, 255) -- the white background makes all the other colors brighter due to alpha transparency
-	
-	self.help = true
-	self.showCenter = true
-	self.freeze = false
-	self.hideObjects = false
-	self.absorb = false
 end
 
 function game:update(dt)
@@ -38,7 +35,7 @@ function game:update(dt)
 	end
 	
 	if self.camera.targetBool then -- focused camera
-		if self.dotSystems.dots[self.camera.target] then
+		if self.dotSystem.dots[self.camera.target] then
 			self.camera.x = -self.dotSystem.dots[self.camera.target].x + love.graphics.getWidth()/2
 			self.camera.y = -self.dotSystem.dots[self.camera.target].y + love.graphics.getHeight()/2
 		end
@@ -154,8 +151,8 @@ end
 function game:resetCamera()
 	self.camera.targetBool = false
 	self.camera.target = 1
-	self.camera.x = -self.canvas:getWidth()/2 + love.graphics.getWidth()/2
-	self.camera.y = -self.canvas:getHeight()/2 + love.graphics.getHeight()/2
+	self.camera.x = self.startX
+	self.camera.y = self.startY
 end
 
 function game:mousepressed(x, y, mbutton)
@@ -175,7 +172,6 @@ function game:mousepressed(x, y, mbutton)
 	-- change mouse coordinates to game coordinates
 	x = x - self.camera.x
 	y = y - self.camera.y
-<<<<<<< HEAD
 	
 
 	
@@ -189,8 +185,6 @@ function game:mousepressed(x, y, mbutton)
 	self.releaseY = y
 	x, y = x + self.canvas:getWidth()/2 - self.camera.x, y +  self.canvas:getHeight()/2 - self.camera.y
 	
-=======
->>>>>>> parent of 754e2ca... good update
 	self.dotSystem:mousepressed(x, y, mbutton)
 end
 
@@ -201,6 +195,7 @@ end
 function game:draw()
     love.graphics.setFont(font[32])
 	love.graphics.setColor(255, 255, 255)
+	love.graphics.setLineWidth(self.traceWidth)
 	
 	love.graphics.push()
 	--love.graphics.setShader(self.shader)
@@ -210,7 +205,7 @@ function game:draw()
 	love.graphics.scale(self.camera.zoom)
 	love.graphics.translate(-love.graphics.getWidth()/2, -love.graphics.getHeight()/2)
 	
-	love.graphics.translate(self.startX + self.camera.x, self.startY + self.camera.y)
+	love.graphics.translate(self.camera.x, self.camera.y)
 	
 	if self.dotSystem.lines then -- draw line traces
 		love.graphics.draw(self.canvas)
@@ -272,7 +267,7 @@ function game:draw()
 		if self.absorb then lineStr = 'on' end
 		love.graphics.print('Absorb (F11): '..lineStr, 5, 485)
 		
-		if self.camera.targetBool then
+		if self.camera.targetBool and self.dotSystem.dots[self.camera.target] then
 			love.graphics.print('Entity mass: '..self.dotSystem.dots[self.camera.target].mass, 5, 515)
 		end
 	end
