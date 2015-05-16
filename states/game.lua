@@ -11,11 +11,16 @@ function game:enter()
 	self.traceWidth = 2
 	local canvasScale = 16 -- scale factor of canvas relative to screen size
 	
+	
 	self.canvas = love.graphics.newCanvas(love.graphics.getWidth()*canvasScale, love.graphics.getHeight()*canvasScale)
+	
+	self.startX = -self.canvas:getWidth()/2 + love.graphics.getWidth()/2
+	self.startY = -self.canvas:getHeight()/2 + love.graphics.getHeight()/2
+	
 	self.canvas:setFilter('linear', 'linear') -- line traces will look a little clearer when zoomed
 	
 	-- camera is centered on the canvas
-	self.camera = {x = -self.canvas:getWidth()/2 + love.graphics.getWidth()/2 , y = -self.canvas:getHeight()/2 + love.graphics.getHeight()/2, zoom = 1, speed = 400, targetBool = false, target = 1} -- centers the camera at the center of the canvas
+	self.camera = {x = 0 , y = 0, zoom = 1, speed = 400, targetBool = false, target = 1} -- centers the camera at the center of the canvas
 	
 	self.dotSystem = DotSystem:new()
 	
@@ -165,6 +170,9 @@ function game:mousepressed(x, y, mbutton)
 		self.camera.zoom = self.camera.zoom - .1
 	end
 	
+	
+	local zoom = math.abs(self.camera.zoom)
+
 	-- change mouse coordinates to game coordinates
 	x = x - self.camera.x
 	y = y - self.camera.y
@@ -172,15 +180,14 @@ function game:mousepressed(x, y, mbutton)
 
 	
 	-- translate to origin, scale, translate back
-	local zoom = math.abs(self.camera.zoom)
 	if self.camera.zoom == 1 then zoom = 1 end
-	--x, y = x - self.canvas:getWidth()/2, y -  self.canvas:getHeight()/2
+	x, y = x - self.canvas:getWidth()/2 + self.camera.x, y -  self.canvas:getHeight()/2 + self.camera.y
 	self.pressX = x
 	self.pressY = y
-	--x, y = x / zoom, y / zoom
+	x, y = x / zoom, y / zoom
 	self.releaseX = x
 	self.releaseY = y
-	--x, y = x + self.canvas:getWidth()/2, y +  self.canvas:getHeight()/2
+	x, y = x + self.canvas:getWidth()/2 - self.camera.x, y +  self.canvas:getHeight()/2 - self.camera.y
 	
 	
 	
@@ -216,7 +223,7 @@ function game:draw()
 	love.graphics.scale(self.camera.zoom)
 	love.graphics.translate(-love.graphics.getWidth()/2, -love.graphics.getHeight()/2)
 	
-	love.graphics.translate(self.camera.x, self.camera.y)
+	love.graphics.translate(self.startX + self.camera.x, self.startY + self.camera.y)
 	
 	if self.dotSystem.lines then -- draw line traces
 		love.graphics.draw(self.canvas)
