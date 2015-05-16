@@ -15,8 +15,8 @@ function game:enter()
 	
 	self.canvas = love.graphics.newCanvas(love.graphics.getWidth()*canvasScale, love.graphics.getHeight()*canvasScale)
 	
-	self.startX = -self.canvas:getWidth()/2 + love.graphics.getWidth()/2
-	self.startY = -self.canvas:getHeight()/2 + love.graphics.getHeight()/2
+	self.startX = self.canvas:getWidth()/2 - love.graphics.getWidth()/2
+	self.startY = self.canvas:getHeight()/2 - love.graphics.getHeight()/2
 	
 	self.canvas:setFilter('linear', 'linear') -- line traces will look a little clearer when zoomed
 	
@@ -36,8 +36,8 @@ function game:update(dt)
 	
 	if self.camera.targetBool then -- focused camera
 		if self.dotSystem.dots[self.camera.target] then
-			self.camera.x = -self.dotSystem.dots[self.camera.target].x + love.graphics.getWidth()/2
-			self.camera.y = -self.dotSystem.dots[self.camera.target].y + love.graphics.getHeight()/2
+			self.camera.x = self.dotSystem.dots[self.camera.target].x - love.graphics.getWidth()/2
+			self.camera.y = self.dotSystem.dots[self.camera.target].y - love.graphics.getHeight()/2
 		end
 	end
 	
@@ -46,10 +46,10 @@ function game:update(dt)
 	
 	local speed = self.camera.speed*dt
 	if love.keyboard.isDown('lshift', 'rshift') then speed = speed * 2 end
-	if love.keyboard.isDown('w', 'up') then self.camera.y = self.camera.y + speed end
-	if love.keyboard.isDown('s', 'down') then self.camera.y = self.camera.y - speed end
-	if love.keyboard.isDown('a', 'left') then self.camera.x = self.camera.x + speed end
-	if love.keyboard.isDown('d', 'right') then self.camera.x = self.camera.x - speed end
+	if love.keyboard.isDown('w', 'up') then self.camera.y = self.camera.y - speed end
+	if love.keyboard.isDown('s', 'down') then self.camera.y = self.camera.y + speed end
+	if love.keyboard.isDown('a', 'left') then self.camera.x = self.camera.x - speed end
+	if love.keyboard.isDown('d', 'right') then self.camera.x = self.camera.x + speed end
 	
 	-- if camera is moved by the player, exit focused camera mode
 	if self.camera.x ~= cameraX or self.camera.y ~= cameraY then
@@ -166,30 +166,35 @@ function game:mousepressed(x, y, mbutton)
 		self.camera.zoom = self.camera.zoom - .1
 	end
 	
+	local newX, newY = self:convertCoordinates(x, y)
 	
-	local zoom = math.abs(self.camera.zoom)
+	self.dotSystem:mousepressed(newX, newY, mbutton)
+end
+
+function game:mousereleased(x, y, button)
+	local newX, newY = self:convertCoordinates(x, y)
+	
+	self.dotSystem:mousereleased(newX, newY, button)
+end
+
+function game:convertCoordinates(x, y)
+	local zoom = self.camera.zoom
 
 	-- change mouse coordinates to game coordinates
-	x = x - self.camera.x
-	y = y - self.camera.y
-	
-
+	x = x + self.camera.x
+	y = y + self.camera.y
 	
 	-- translate to origin, scale, translate back
-	if self.camera.zoom == 1 then zoom = 1 end
-	x, y = x - self.canvas:getWidth()/2 + self.camera.x, y -  self.canvas:getHeight()/2 + self.camera.y
+	x, y = x - self.camera.x - love.graphics.getWidth()/2, y - self.camera.y - love.graphics.getHeight()/2
+	--error(x..' '..y)
 	self.pressX = x
 	self.pressY = y
 	x, y = x / zoom, y / zoom
 	self.releaseX = x
 	self.releaseY = y
-	x, y = x + self.canvas:getWidth()/2 - self.camera.x, y +  self.canvas:getHeight()/2 - self.camera.y
-	
-	self.dotSystem:mousepressed(x, y, mbutton)
-end
+	x, y = x + self.camera.x + love.graphics.getWidth()/2, y + self.camera.y + love.graphics.getHeight()/2
 
-function game:mousereleased(x, y, button)
-	self.dotSystem:mousereleased(x, y, button)
+	return x, y
 end
 
 function game:draw()
@@ -205,7 +210,7 @@ function game:draw()
 	love.graphics.scale(self.camera.zoom)
 	love.graphics.translate(-love.graphics.getWidth()/2, -love.graphics.getHeight()/2)
 	
-	love.graphics.translate(self.camera.x, self.camera.y)
+	love.graphics.translate(-self.camera.x, -self.camera.y)
 	
 	if self.dotSystem.lines then -- draw line traces
 		love.graphics.draw(self.canvas)
