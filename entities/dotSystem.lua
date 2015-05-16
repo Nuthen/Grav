@@ -161,8 +161,8 @@ function DotSystem:mousereleased(x, y, mbutton)
 		directions = 0
 	end
 	
-	local vx = x - game.camera.x - self.spawnX
-	local vy = y - game.camera.y - self.spawnY
+	local vx = x - self.spawnX
+	local vy = y - self.spawnY
 	
 	local angle = math.angle(0, 0, vx, vy)
 	local speed = math.sqrt(vx^2 + vy^2)
@@ -205,11 +205,12 @@ function DotSystem:draw()
 			love.graphics.setColor(0, 0, 255)
 		end
 		
-		love.graphics.line(self.spawnX, self.spawnY, love.mouse.getX() - game.camera.x, love.mouse.getY() - game.camera.y) -- initial vector indicator when dragging
-		local angle = math.angle(self.spawnX, self.spawnY, love.mouse.getX() - game.camera.x, love.mouse.getY() - game.camera.y)
+		local newX, newY = game:convertCoordinates(love.mouse.getX(), love.mouse.getY())
+		love.graphics.line(self.spawnX, self.spawnY, newX, newY) -- initial vector indicator when dragging
+		local angle = math.angle(self.spawnX, self.spawnY, newX, newY)
 		local turn = 30 -- degrees
 		local length = 30
-		love.graphics.line(love.mouse.getX() - game.camera.x, love.mouse.getY() - game.camera.y, love.mouse.getX() - game.camera.x + math.cos(angle + math.rad(180-turn)) * length, love.mouse.getY() - game.camera.y + math.sin(angle + math.rad(180-turn)) * length)
-		love.graphics.line(love.mouse.getX() - game.camera.x, love.mouse.getY() - game.camera.y, love.mouse.getX() - game.camera.x + math.cos(angle - math.rad(180-turn)) * length, love.mouse.getY() - game.camera.y + math.sin(angle - math.rad(180-turn)) * length)
+		love.graphics.line(newX, newY, newX + math.cos(angle + math.rad(180-turn)) * length, newY + math.sin(angle + math.rad(180-turn)) * length)
+		love.graphics.line(newX, newY, newX + math.cos(angle - math.rad(180-turn)) * length, newY + math.sin(angle - math.rad(180-turn)) * length)
 	end
 end
