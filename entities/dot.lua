@@ -11,23 +11,19 @@ function Dot:initialize(x, y, angle, speed, mass, directions, super, gigantic, r
 	self.lastX = x
 	self.lastY = y
 	
-	if mass == 0 then
-		local sizeFactor = math.random(1, 500)
-		self.size = math.floor(sizeFactor/50)+5 * 2
-		self.mass = mass or sizeFactor
-	elseif self.super then
+	if self.super then
 		if gigantic then
 			local sizeFactor = math.random(20000, 1000000)
-			self.size = math.sqrt(math.floor(sizeFactor/100)) * 2
+			self.size = math.sqrt(math.floor(sizeFactor/100))
 			self.mass = mass or sizeFactor
 		else
 			local sizeFactor = math.random(5000, 10000)
-			self.size = (math.floor(sizeFactor/100)+5) * 2
+			self.size = math.floor(sizeFactor/100)+5
 			self.mass = mass or sizeFactor
 		end
 	else
 		local sizeFactor = math.random(1, 2000)
-		self.size = math.floor(sizeFactor/50)+5 * 2
+		self.size = math.floor(sizeFactor/50)+5
 		self.mass = mass or sizeFactor
 	end
 	
@@ -83,13 +79,13 @@ function Dot:draw()
 	love.graphics.setColor(self.color[1], self.color[2], self.color[3], alpha)
 	
 	if self.super then
-		love.graphics.circle('fill', self.x, self.y, self.size, 50)
+		love.graphics.circle('fill', self.x, self.y, self.size)
 	end
 	
 	if self.angle then
 		if not self.super then
-			local w = self.size
-			local h = self.speed * 2 *2 -- the faster it is moving, the taller the object will be
+			local w = self.size*2/5
+			local h = self.speed * 2 -- the faster it is moving, the taller the object will be
 			love.graphics.polygon('fill', self.x + math.cos(self.angle - math.rad(90))*w, self.y + math.sin(self.angle - math.rad(90))*w, 
 												  self.x + math.cos(self.angle + math.rad(90))*w, self.y + math.sin(self.angle + math.rad(90))*w,
 												  self.x + math.cos(self.angle)*h, self.y + math.sin(self.angle)*h)
