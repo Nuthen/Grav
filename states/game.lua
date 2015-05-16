@@ -14,7 +14,11 @@ function game:enter()
 	self.canvas:setFilter('linear', 'linear') -- line traces will look a little clearer when zoomed
 	
 	-- camera is centered on the canvas
+<<<<<<< HEAD
 	self.camera = {x = 0 , y = 0, zoom = 1, speed = 400, targetBool = false, target = 1} -- centers the camera at the center of the canvas
+=======
+	self.camera = {x = -self.canvas:getWidth()/2 + love.graphics.getWidth()/2 , y = -self.canvas:getHeight()/2 + love.graphics.getHeight()/2, zoom = 1, speed = 400, targetBool = false, target = 1} -- centers the camera at the center of the canvas
+>>>>>>> parent of 754e2ca... good update
 	
 	--self.shader = love.graphics.newShader('shaders/sharpen.glsl')
 	--self.shader:send('stepSize', {1/love.graphics:getWidth(), 1/love.graphics:getHeight()})
@@ -171,6 +175,7 @@ function game:mousepressed(x, y, mbutton)
 	-- change mouse coordinates to game coordinates
 	x = x - self.camera.x
 	y = y - self.camera.y
+<<<<<<< HEAD
 	
 
 	
@@ -184,6 +189,8 @@ function game:mousepressed(x, y, mbutton)
 	self.releaseY = y
 	x, y = x + self.canvas:getWidth()/2 - self.camera.x, y +  self.canvas:getHeight()/2 - self.camera.y
 	
+=======
+>>>>>>> parent of 754e2ca... good update
 	self.dotSystem:mousepressed(x, y, mbutton)
 end
 
