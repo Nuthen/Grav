@@ -4,7 +4,7 @@ function game:enter()
 	love.graphics.setBackgroundColor(255, 255, 255) -- the white background makes all the other colors brighter due to alpha transparency
 
 	
-	self.help = true
+	self.help = false
 	self.showCenter = true
 	self.freeze = false
 	self.hideObjects = false
@@ -50,7 +50,7 @@ function game:update(dt)
 	local cameraX = self.camera.x
 	local cameraY = self.camera.y
 	
-	local speed = self.camera.speed*dt
+	local speed = self.camera.speed*dt/self.camera.zoom
 	if love.keyboard.isDown('lshift', 'rshift') then speed = speed * 2 end
 	if love.keyboard.isDown('w', 'up') then self.camera.y = self.camera.y - speed end
 	if love.keyboard.isDown('s', 'down') then self.camera.y = self.camera.y + speed end
@@ -59,7 +59,9 @@ function game:update(dt)
 	
 	-- if camera is moved by the player, exit focused camera mode
 	if self.camera.x ~= cameraX or self.camera.y ~= cameraY then
-		self.camera.targetBool = false
+		if self.camera.targetBool then
+			self.UI:updateButton('Follow')
+		end
 	end
 	
 	self.UI.bar:update()
@@ -71,20 +73,45 @@ function game:keypressed(key, isrepeat)
     end
 	
 	if key == 'f1' then
-		self:toggleTrace()
+		--self:toggleTrace()
+		self.UI:updateButton('Trace')
 	end
 	
-	-- toggle help text
+	if key == 'f2' then
+		--self:toggleObjects()
+		self.UI:updateButton('Objects')
+	end
+	
+	-- bigger objects absorb smaller objects (Osmos)
 	if key == 'f3' then
-		if self.help then
-			self.help = false
-		else
-			self.help = true
-		end
+		--self:toggleAbsorb()
+		self.UI:updateButton('Absorb')
+	end
+	
+	if key == 'f4' then
+		--self:toggleLimit()
+		self.UI:updateButton('Directions')
+	end
+	
+	if key == 'f5' then
+		--self:toggleFollow()
+		self.UI:updateButton('Follow')
+	end
+	
+	-- move the camera to the origin
+	if key == 'f6' then
+		--self:resetCamera()
+		self.UI:updateButton('Origin')
+	end
+	
+	-- reset everything
+	if key == 'f7' then -- clear
+		--self:clear()
+		self.UI:updateButton('Clear')
 	end
 	
 	-- toggle crosshair in the center
-	if key == 'f4' then
+	if key == 'f11' then
 		if self.showCenter then
 			self.showCenter = false
 		else
@@ -92,37 +119,25 @@ function game:keypressed(key, isrepeat)
 		end
 	end
 	
-	-- reset everything
-	if key == 'f5' then -- clear
-		self:clear()
-	end
-	
-	-- move the camera to the origin
-	if key == 'f9' then
-		self:resetCamera()
-	end
-	
-	-- show only line traces
-	if key == 'f10' then
-		self:toggleObjects()
-	end
-	
-	-- bigger objects absorb smaller objects (Osmos)
-	if key == 'f11' then
-		self:toggleAbsorb()
+	-- toggle help text
+	if key == 'f12' then
+		if self.help then
+			self.help = false
+		else
+			self.help = true
+		end
 	end
 	
 	-- pause simulation, useful for setting up objects
 	if key == ' ' then
-		self:toggleFreeze()
+		self.UI:updateButton('Pause')
 	end
 	
 	-- activate and switch through entities to focus the camera on
 	if #self.dotSystem.dots > 0 then
 		if key == ',' then -- <
 			if not self.camera.targetBool then
-				self.camera.targetBool = true
-				self.camera.target = 1
+				self.UI:updateButton('Follow')
 			elseif self.camera.target > 1 then
 				self.camera.target = self.camera.target - 1
 			else
@@ -131,8 +146,7 @@ function game:keypressed(key, isrepeat)
 			
 		elseif key == '.' then -- >
 			if not self.camera.targetBool then
-				self.camera.targetBool = true
-				self.camera.target = 1
+				self.UI:updateButton('Follow')
 			elseif self.camera.target < #self.dotSystem.dots then
 				self.camera.target = self.camera.target + 1
 			else
@@ -141,9 +155,15 @@ function game:keypressed(key, isrepeat)
 		end
 	end
 	
+	if key == '=' then -- +
+		self:changeDirections(1)
+	elseif key == '-' then
+		self:changeDirections(-1)
+	end
 	
 	self.dotSystem:keypressed(key, isrepeat)
 end
+
 
 function game:clear()
 	self.canvas:clear()
@@ -153,8 +173,10 @@ function game:clear()
 end
 
 function game:resetCamera()
-	self.camera.targetBool = false
-	self.camera.target = 1
+	if self.camera.targetBool then
+		self.UI:updateButton('Follow')
+	end
+	
 	self.camera.x = self.startX
 	self.camera.y = self.startY
 end
@@ -191,6 +213,54 @@ function game:toggleFreeze()
 		self.freeze = true
 	end
 end
+
+function game:toggleLimit() -- toggle limit on entity direction
+	if self.dotSystem.limit then
+		self.dotSystem.limit = false
+	else
+		self.dotSystem.limit = true
+	end
+end
+
+function game:changeDirections(b)
+	if b > 0 or self.dotSystem.directions > 1 then
+		self.dotSystem.directions = self.dotSystem.directions + b
+	end
+end
+
+function game:getDirections()
+	return self.dotSystem.directions
+end
+
+function game:toggleFollow()
+	if self.camera.targetBool then
+		self.camera.targetBool = false
+	elseif #self.dotSystem.dots > 0 then -- if at least 1 object exists to follow
+		self.camera.targetBool = true
+		self.camera.target = 1
+	end
+end
+
+function game:getCameraTarget()
+	return self.camera.target
+end
+
+function game:changeCameraTarget(b)
+	if b < 0 then
+		if self.camera.target > 1 then -- assumes b is -1 or 1
+			self.camera.target = self.camera.target + b
+		else
+			self.camera.target = #self.dotSystem.dots
+		end
+	else
+		if self.camera.target < #self.dotSystem.dots then
+			self.camera.target = self.camera.target + 1
+		else
+			self.camera.target = 1
+		end
+	end
+end
+
 
 function game:mousepressed(x, y, mbutton)
     if console.mousepressed(x, y, mbutton) then

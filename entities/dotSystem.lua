@@ -15,14 +15,8 @@ function DotSystem:initialize()
 	self.special = false
 	
 	self.traceAlpha = 255
-end
-
-function DotSystem:toggleLimit() -- toggle limit on entity direction
-	if self.limit then
-		self.limit = false
-	else
-		self.limit = true
-	end
+	
+	self.arrowWidth = 4
 end
 
 function DotSystem:update(dt)
@@ -59,7 +53,9 @@ function DotSystem:update(dt)
 			table.remove(self.dots, i)
 			
 			if i == game.camera.target then
-				game.camera.targetBool = false
+				if game.camera.targetBool then
+					game.UI:updateButton('Follow')
+				end
 			end
 		end
 	end
@@ -122,19 +118,7 @@ function DotSystem:absorbObject(dot, dot2, dist)
 end
 
 function DotSystem:keypressed(key, isrepeat)
-	if key == 'f1' then
-		self:toggleLines()
-	end
 	
-	if key == 'f2' then
-		self:toggleLimit()
-	end
-	
-	if key == '=' then -- +
-		self.directions = self.directions + 1
-	elseif key == '-' and self.directions > 0 then
-		self.directions = self.directions - 1
-	end
 end
 
 function DotSystem:mousepressed(x, y, mbutton)
@@ -197,12 +181,14 @@ function DotSystem:draw()
 			love.graphics.setColor(0, 0, 255)
 		end
 		
+		-- spawn arrow
+		love.graphics.setLineWidth(self.arrowWidth/game.camera.zoom)
 		local newX, newY = game:convertCoordinates(love.mouse.getX(), love.mouse.getY())
 		love.graphics.line(self.spawnX, self.spawnY, newX, newY) -- initial vector indicator when dragging
 		local angle = math.angle(self.spawnX, self.spawnY, newX, newY)
 		local turn = 30 -- degrees
-		local length = 30
-		love.graphics.line(newX, newY, newX + math.cos(angle + math.rad(180-turn)) * length, newY + math.sin(angle + math.rad(180-turn)) * length)
-		love.graphics.line(newX, newY, newX + math.cos(angle - math.rad(180-turn)) * length, newY + math.sin(angle - math.rad(180-turn)) * length)
+		local length = 30/game.camera.zoom
+		-- arrow head
+		love.graphics.line(newX + math.cos(angle + math.rad(180-turn)) * length, newY + math.sin(angle + math.rad(180-turn)) * length, newX, newY, newX + math.cos(angle - math.rad(180-turn)) * length, newY + math.sin(angle - math.rad(180-turn)) * length)
 	end
 end

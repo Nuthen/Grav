@@ -4,7 +4,6 @@
 -experiment with larger objects moving
 
 - add camera focus rotation (switch between them automatically)
-- add a good UI
 - perhaps more game-like feautures
 
 - grid snapping (binded to alt I guess)
@@ -25,6 +24,15 @@
 - have objects "evolve" as they gain mass
 - lazors
 
+- fix weird ship disappearing bug
+- some camera spectator bug somewhere
+
+- slow field
+
+
+- remove unneeded help text
+- improve UI colors
+- fix target follow when entities are absorbed
 
 -- COMPLETED --
 
@@ -36,3 +44,5 @@ X-massless objects
 X-icon
 X- repel
 X- account for zoom on clicks
+X- add a good UI
+X- link keypresses to buttons

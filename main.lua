@@ -14,7 +14,8 @@ require 'states.game'
 -- entities
 require 'entities.dotSystem'
 require 'entities.dot'
-require 'entities.UI'
+require 'entities.ui.UI'
+require 'entities.ui.changeButton'
 
 
 function love.load()
