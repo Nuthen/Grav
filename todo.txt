@@ -1,22 +1,38 @@
-X-set size to speed 
-X-clean code
-Z-make 3 objects (add large object)
-X-bigger canvas
-X-absorb mode
-X-massless objects
-Z-experiment with larger objects moving
-X-icon
+-- TODO --
 
-- add camera focus rotation (switch between them)
+-make 3 objects (add large object)
+-experiment with larger objects moving
+
+- add camera focus rotation (switch between them automatically)
 - add a good UI
 - perhaps more game-like feautures
-X- repel
 
 - grid snapping (binded to alt I guess)
-X- account for zoom on clicks
 - show mass for followed entity
 
-- included a way to tell the player about everything they can create
+- include a way to tell the player about everything they can create
 - add a visual way to tell type of an entity
 
 - add the ability for large masses to orbit around super masses
+
+- clarity of line traces (multiple canvases for different zoom levels)
+- repel ships
+- spawn ships from planets
+- sliders for zoom and object mass
+- thrusters for ships
+- less randomness
+- presets
+- have objects "evolve" as they gain mass
+- lazors
+
+
+-- COMPLETED --
+
+X-set size to speed 
+X-clean code
+X-bigger canvas
+X-absorb mode
+X-massless objects
+X-icon
+X- repel
+X- account for zoom on clicks

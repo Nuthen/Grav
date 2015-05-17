@@ -10,7 +10,9 @@ function game:enter()
 	self.hideObjects = false
 	self.absorb = false
 	self.traceWidth = 2
+	self.lines = true
 	local canvasScale = 16 -- scale factor of canvas relative to screen size
+	self.axisWidth = 2
 	
 	
 	self.canvas = love.graphics.newCanvas(love.graphics.getWidth()*canvasScale, love.graphics.getHeight()*canvasScale)
@@ -25,8 +27,12 @@ function game:enter()
 	
 	self.dotSystem = DotSystem:new()
 	
+	self.UI = UI:new()
+	
 	--self.shader = love.graphics.newShader('shaders/sharpen.glsl')
 	--self.shader:send('stepSize', {1/love.graphics:getWidth(), 1/love.graphics:getHeight()})
+	
+	self.spawnClicked = false
 end
 
 function game:update(dt)
@@ -55,12 +61,18 @@ function game:update(dt)
 	if self.camera.x ~= cameraX or self.camera.y ~= cameraY then
 		self.camera.targetBool = false
 	end
+	
+	self.UI.bar:update()
 end
 
 function game:keypressed(key, isrepeat)
     if console.keypressed(key) then
         return
     end
+	
+	if key == 'f1' then
+		self:toggleTrace()
+	end
 	
 	-- toggle help text
 	if key == 'f3' then
@@ -82,10 +94,7 @@ function game:keypressed(key, isrepeat)
 	
 	-- reset everything
 	if key == 'f5' then -- clear
-		self.canvas:clear()
-		self.dotSystem.dots = {}
-		
-		self:resetCamera()
+		self:clear()
 	end
 	
 	-- move the camera to the origin
@@ -95,29 +104,17 @@ function game:keypressed(key, isrepeat)
 	
 	-- show only line traces
 	if key == 'f10' then
-		if self.hideObjects then
-			self.hideObjects = false
-		else
-			self.hideObjects = true
-		end
+		self:toggleObjects()
 	end
 	
 	-- bigger objects absorb smaller objects (Osmos)
 	if key == 'f11' then
-		if self.absorb then
-			self.absorb = false
-		else
-			self.absorb = true
-		end
+		self:toggleAbsorb()
 	end
 	
 	-- pause simulation, useful for setting up objects
 	if key == ' ' then
-		if self.freeze then
-			self.freeze = false
-		else
-			self.freeze = true
-		end
+		self:toggleFreeze()
 	end
 	
 	-- activate and switch through entities to focus the camera on
@@ -148,11 +145,51 @@ function game:keypressed(key, isrepeat)
 	self.dotSystem:keypressed(key, isrepeat)
 end
 
+function game:clear()
+	self.canvas:clear()
+	self.dotSystem.dots = {}
+	
+	self:resetCamera()
+end
+
 function game:resetCamera()
 	self.camera.targetBool = false
 	self.camera.target = 1
 	self.camera.x = self.startX
 	self.camera.y = self.startY
+end
+
+function game:toggleTrace()
+	if self.lines then
+		self.lines = false
+		self.canvas:clear()
+	else
+		self.lines = true
+	end
+end
+
+function game:toggleObjects()
+	if self.hideObjects then
+		self.hideObjects = false
+	else
+		self.hideObjects = true
+	end
+end
+
+function game:toggleAbsorb()
+	if self.absorb then
+		self.absorb = false
+	else
+		self.absorb = true
+	end
+end
+
+function game:toggleFreeze()
+	if self.freeze then
+		self.freeze = false
+	else
+		self.freeze = true
+	end
 end
 
 function game:mousepressed(x, y, mbutton)
@@ -168,13 +205,21 @@ function game:mousepressed(x, y, mbutton)
 	
 	local newX, newY = self:convertCoordinates(x, y)
 	
-	self.dotSystem:mousepressed(newX, newY, mbutton)
+	local clicked = self.UI.bar:mousepressed(x, y)
+	
+	if not clicked then
+		self.spawnClicked = true
+		self.dotSystem:mousepressed(newX, newY, mbutton)
+	end
 end
 
 function game:mousereleased(x, y, button)
 	local newX, newY = self:convertCoordinates(x, y)
 	
-	self.dotSystem:mousereleased(newX, newY, button)
+	if self.spawnClicked then
+		self.spawnClicked = false
+		self.dotSystem:mousereleased(newX, newY, button)
+	end
 end
 
 function game:convertCoordinates(x, y)
@@ -186,12 +231,7 @@ function game:convertCoordinates(x, y)
 	
 	-- translate to origin, scale, translate back
 	x, y = x - self.camera.x - love.graphics.getWidth()/2, y - self.camera.y - love.graphics.getHeight()/2
-	--error(x..' '..y)
-	self.pressX = x
-	self.pressY = y
 	x, y = x / zoom, y / zoom
-	self.releaseX = x
-	self.releaseY = y
 	x, y = x + self.camera.x + love.graphics.getWidth()/2, y + self.camera.y + love.graphics.getHeight()/2
 
 	return x, y
@@ -200,7 +240,6 @@ end
 function game:draw()
     love.graphics.setFont(font[32])
 	love.graphics.setColor(255, 255, 255)
-	love.graphics.setLineWidth(self.traceWidth)
 	
 	love.graphics.push()
 	--love.graphics.setShader(self.shader)
@@ -212,7 +251,7 @@ function game:draw()
 	
 	love.graphics.translate(-self.camera.x, -self.camera.y)
 	
-	if self.dotSystem.lines then -- draw line traces
+	if self.lines then -- draw line traces
 		love.graphics.draw(self.canvas)
 	end
 	
@@ -221,8 +260,9 @@ function game:draw()
 	end
 	
 	if self.showCenter then -- draw axis at the center
+		love.graphics.setLineWidth(self.axisWidth/self.camera.zoom)
 		love.graphics.setColor(0, 0, 0)
-		local d = 50
+		local d = 50/self.camera.zoom
 		love.graphics.line(self.canvas:getWidth()/2 - d, self.canvas:getHeight()/2, self.canvas:getWidth()/2 + d, self.canvas:getHeight()/2)
 		love.graphics.line(self.canvas:getWidth()/2, self.canvas:getHeight()/2 - d, self.canvas:getWidth()/2, self.canvas:getHeight()/2 + d)
 	end
@@ -276,6 +316,8 @@ function game:draw()
 			love.graphics.print('Entity mass: '..self.dotSystem.dots[self.camera.target].mass, 5, 515)
 		end
 	end
+	
+	self.UI:draw()
 end
 
 

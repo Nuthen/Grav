@@ -5,7 +5,6 @@ function DotSystem:initialize()
 	
 	self.maxG = .5 -- prevents gravity from causing objects to go infinitely fast as they get infinitely close
 	
-	self.lines = true
 	self.limit = false -- if angles of entities should be limited
 	self.directions = 8 -- number of directions an object can move in if self.limit is true
 	
@@ -16,15 +15,6 @@ function DotSystem:initialize()
 	self.special = false
 	
 	self.traceAlpha = 255
-end
-
-function DotSystem:toggleLines() -- toggle line traces
-	if self.lines then
-		self.lines = false
-		game.canvas:clear()
-	else
-		self.lines = true
-	end
 end
 
 function DotSystem:toggleLimit() -- toggle limit on entity direction
@@ -78,10 +68,12 @@ function DotSystem:update(dt)
 		dot:update(dt)
 	end
 	
-	if self.lines then -- draw line traces
+	if game.lines then -- draw line traces
 		game.canvas:renderTo(function()
 			love.graphics.push()
 			love.graphics.translate(game.camera.x, game.camera.y)
+			
+			love.graphics.setLineWidth(game.traceWidth)
 			
 			for i, dot in ipairs(self.dots) do
 				love.graphics.setColor(dot.color[1], dot.color[2], dot.color[3], self.traceAlpha)
