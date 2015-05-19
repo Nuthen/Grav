@@ -42,7 +42,7 @@ function UI:initialize()
 	
 	------------------- Mass UI-------------------
 	self.pane = Pane:new(love.graphics.getWidth()*3/4,  love.graphics.getHeight()/4, 150, 50, function() return game:showPane() end,
-		function() local mass, percent = game:getTargetMass() return mass..' kg', percent end,
+		function() local mass, percent = game:getTargetMass() return math.floor(mass)..' kg', percent end,
 		function(mass) game:setTargetMass(mass) end)
 end
 

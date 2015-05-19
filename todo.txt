@@ -5,13 +5,11 @@
 - show mass for followed entity
 - add a visual way to tell type of an entity
 - sliders for zoom and object mass
-- less randomness
-- better sized ships
-- scale alpha based on mass
 - improve UI colors
 - grid snapping (binded to alt I guess)
 - click on objects to follow them
 - mass of earth compared to sun
+- scale mass pane on window resize
 
 -- Bugs --
 - fix weird ship disappearing bug
@@ -21,6 +19,7 @@
 - fix draw order
 
 -- Dream Features --
+- add a ship spawner
 - make trace colors lighter with less mass
 - increase/reduce speed
 - multiple color themes
@@ -56,3 +55,6 @@ X- repel ships
 X- remove unneeded help text
 X- hotbar at bottom for spawning things
 X- fix UI and scaling
+X- less randomness
+X- better sized ships
+X- scale alpha based on mass

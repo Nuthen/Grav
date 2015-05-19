@@ -4,7 +4,7 @@ function game:enter()
 	love.graphics.setBackgroundColor(255, 255, 255) -- the white background makes all the other colors brighter due to alpha transparency
 
 	
-	self.help = false
+	self.help = true
 	self.showCenter = true
 	self.freeze = false
 	self.hideObjects = false
@@ -12,8 +12,10 @@ function game:enter()
 	self.traceWidth = 2
 	self.lines = true
 	local canvasScale = 16 -- scale factor of canvas relative to screen size
+	
 	self.axisWidth = 2
 	self.spawnObjectName = 'ship'
+	self.zoomMax = 3
 	
 	self.font = font[32]
 	
@@ -174,7 +176,13 @@ function game:keypressed(key, isrepeat)
 		self.UI:updateButton('Repel Planet')
 	end
 	
-	self.dotSystem:keypressed(key, isrepeat)
+	if key == 'delete' then
+		if self.camera.targetBool and self.dotSystem.dots[self.camera.target] then
+			self.dotSystem.dots[self.camera.target].destroy = true
+		end
+	end
+	
+	--self.dotSystem:keypressed(key, isrepeat)
 end
 
 
@@ -312,9 +320,9 @@ function game:mousepressed(x, y, mbutton)
         return
     end
 	
-	if mbutton == 'wu' then
+	if mbutton == 'wu' and self.camera.zoom < self.zoomMax then
 		self.camera.zoom = self.camera.zoom + .1
-	elseif mbutton == 'wd' and self.camera.zoom > .2 then
+	elseif mbutton == 'wd' and self.camera.zoom >= .2 then
 		self.camera.zoom = self.camera.zoom - .1
 	end
 	
@@ -402,46 +410,16 @@ function game:draw()
 	love.graphics.print(love.timer.getFPS(), 5, 5)
 	
 	if self.help then
-		local lineStr = 'off'
-		if self.dotSystem.lines then lineStr = 'on' end
-		love.graphics.print('Trace Lines (F1): '..lineStr, 5, 35)
+		local helpText = {}
+		table.insert(helpText, 'Spawn Object (LMB [+ ctrl])')
+		table.insert(helpText, 'Camera (WASD [+ Shift])')
+		table.insert(helpText, 'Zoom (wheel): '..self.camera.zoom)
+		table.insert(helpText, 'Total Objects: '..#self.dotSystem.dots)
+		table.insert(helpText, 'Hide Axis (F11)')
+		table.insert(helpText, 'Hide Help (F12)')
 		
-		local lineStr = 'off'
-		if self.dotSystem.limit then lineStr = 'on' end
-		love.graphics.print('Limit Movement (F2): '..lineStr, 5, 65)
-		
-		love.graphics.print('Directions (+ / -): '..self.dotSystem.directions, 40, 95) -- indented
-		
-		
-		love.graphics.print('Hide Help (F3)', 5, 125)
-		
-		local lineStr = 'off'
-		if self.showCenter then lineStr = 'on' end
-		love.graphics.print('Show Axis (F4): '..lineStr, 5, 155)
-		
-		love.graphics.print('Clear (F5)', 5, 185)
-		
-		love.graphics.print('Small mass (LMB [+ ctrl])', 5, 215)
-		love.graphics.print('Large mass (RMB [+ ctrl])', 5, 245)
-		love.graphics.print('Camera (WASD/Shift)', 5, 275)
-		
-		local lineStr = 'off'
-		if self.freeze then lineStr = 'on' end
-		love.graphics.print('Freeze (space): '..lineStr, 5, 305)
-		
-		love.graphics.print('Origin (F9)', 5, 335)
-		love.graphics.print('Hide Objects (F10)', 5, 365)
-		love.graphics.print('Zoom (wheel): '..self.camera.zoom, 5, 395)
-		
-		love.graphics.print('Entities: '..#self.dotSystem.dots, 5, 425)
-		love.graphics.print('Entity Focus (< / >): '..tostring(self.camera.target), 5, 455)
-		
-		local lineStr = 'off'
-		if self.absorb then lineStr = 'on' end
-		love.graphics.print('Absorb (F11): '..lineStr, 5, 485)
-		
-		if self.camera.targetBool and self.dotSystem.dots[self.camera.target] then
-			love.graphics.print('Entity mass: '..self.dotSystem.dots[self.camera.target].mass, 5, 515)
+		for i = 1, #helpText do
+			love.graphics.print(helpText[i], 5, 50+36*i)
 		end
 	end
 	

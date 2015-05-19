@@ -54,10 +54,13 @@ function DotSystem:update(dt)
 			
 			if i == game.camera.target then
 				if game.camera.targetBool then
-					if game.camera.target > 1 then
+					if #self.dots <= game.camera.target and game.camera.target > 1 then
 						game.camera.target = game.camera.target - 1
 					end
-					game.UI:updateButton('Follow')
+					
+					if #self.dots == 0 then
+						game.UI:updateButton('Follow')
+					end
 				end
 			end
 		end
@@ -118,6 +121,9 @@ function DotSystem:absorbObject(dot, dot2, dist)
 			dot.destroy = true
 		end
 	end
+	
+	if dot.mass > dot.maxMass then dot.maxMass = dot.mass end
+	if dot2.mass > dot2.maxMass then dot2.maxMass = dot2.mass end
 end
 
 function DotSystem:keypressed(key, isrepeat)
