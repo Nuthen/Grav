@@ -40,10 +40,10 @@ end
 
 function UI:mousepressed(x, y, mbutton)
 	if mbutton == 'l' then
-		clicked = self.bar:mousepressed(x, y)
-		clicked = self.objectBar:mousepressed(x, y)
+		clicked1 = self.bar:mousepressed(x, y)
+		clicked2 = self.objectBar:mousepressed(x, y)
 		
-		if clicked then
+		if clicked1 or clicked2 then
 			return true
 		end
 	end
@@ -101,22 +101,24 @@ function Bar:update()
 end
 
 function Bar:mousepressed(x, y)
-	local clicked = nil
+	local clicked = false
+	local j = nil
 	
 	if y >= self.y and y <= self.y + self.height then -- height is uniform for all objects on the bar
 		for i, object in ipairs(self.objects) do
-			if not self.switch or not object.on then
+			if not self.switch or not object.on then -- if switch is on, then an object set to on already cannot be switched
 				clicked = object:mousepressed(x, y, i)
-			end
-			
-			if clicked then
-				break
+				
+				if clicked then
+					j = i
+					break
+				end
 			end
 		end
 		
 		if self.switch and clicked then
 			for i, object in ipairs(self.objects) do
-				if i ~= clicked then
+				if i ~= j then
 					object.on = false
 				end
 			end
@@ -217,7 +219,7 @@ function Button:mousepressed(x, y, i, override)
 			]]
 		end
 		
-		return i
+		return true
 	end
 end
 

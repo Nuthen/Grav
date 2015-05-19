@@ -37,7 +37,9 @@
 - dynamic canvas
 - snapping
 - find center point
-- hotbar at bottom for spawning things
+Z- hotbar at bottom for spawning things
+
+- smaller ships
 
 
 -- COMPLETED --
