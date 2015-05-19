@@ -11,27 +11,47 @@ function Ship:initialize(x, y, angle, speed, directions, repel, super)
 	self.lastX = x
 	self.lastY = y
 	
-	
+	--[[
 	local sizeFactor = math.random(1, 2000)
 	if self.super then sizeFactor = sizeFactor*2 end
 	
 	self.size = (math.floor(sizeFactor/150)+5) * 2
 	self.mass = mass or sizeFactor
+	]]
+	
+	self.massMin = 0
+	self.massMax = 2000
+	
+	self.sizeMin = 10
+	self.sizeMax = 25
+	
+	self.alphaMin = 75
+	self.alphaMax = 150
+	
+	if self.super then
+		self.massMin = 4000
+		self.massMax = 10000
+		
+		self.sizeMin = 25
+		self.sizeMax = 50
+		
+		self.alphaMin = 150
+		self.alphaMax = 250
+	end
+	
+	self.color = {math.random(255), math.random(255), math.random(255)}
+	
+	local massPercent = .25
+	self:setMass(massPercent)
 	
 	self.gx = 0
 	self.gy = 0
 	
 	self.angle = angle
 	self.speed = speed/50
-
-	local hBase = self.size+10*(1000-self.size)/2000
-	self.hBase = hBase
-	self.h = hBase
 	
 	self.vx = math.cos(self.angle)*self.speed
 	self.vy = math.sin(self.angle)*self.speed
-	
-	self.color = {math.random(255), math.random(255), math.random(255)}
 	
 	self.destroy = false
 end
@@ -63,9 +83,7 @@ function Ship:update(dt)
 end
 
 function Ship:draw()
-	local alpha = 150
-	
-	love.graphics.setColor(self.color[1], self.color[2], self.color[3], alpha)
+	love.graphics.setColor(self.color)
 	
 	if self.angle then -- draw a triangle
 		local w = self.size
@@ -74,4 +92,24 @@ function Ship:draw()
 											  self.x + math.cos(self.angle + math.rad(90))*w, self.y + math.sin(self.angle + math.rad(90))*w,
 											  self.x + math.cos(self.angle)*h, self.y + math.sin(self.angle)*h)
 	end
+end
+
+
+function Ship:getMass()
+	local mass = self.mass
+	local massPercent = (mass-self.massMin)/(self.massMax-self.massMin)
+	return mass, massPercent
+end
+
+function Ship:setMass(massPercent)
+	-- massPercent is 0-1
+	self.mass = math.floor(massPercent*(self.massMax-self.massMin) + self.massMin)
+	self.size = math.floor(massPercent*(self.sizeMax-self.sizeMin) + self.sizeMin)
+	self.alpha = math.floor(massPercent*(self.alphaMax-self.alphaMin) + self.alphaMin)
+	
+	self.color[4] = self.alpha
+	
+	local hBase = self.size+10*(1000-self.size)/2000
+	self.hBase = hBase
+	self.h = hBase
 end

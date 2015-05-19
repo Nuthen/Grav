@@ -54,6 +54,9 @@ function DotSystem:update(dt)
 			
 			if i == game.camera.target then
 				if game.camera.targetBool then
+					if game.camera.target > 1 then
+						game.camera.target = game.camera.target - 1
+					end
 					game.UI:updateButton('Follow')
 				end
 			end

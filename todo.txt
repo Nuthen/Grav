@@ -18,8 +18,11 @@
 - some camera spectator bug somewhere
 - things not disappearing on clear bug
 - fix target follow when entities are absorbed
+- fix draw order
 
 -- Dream Features --
+- make trace colors lighter with less mass
+- increase/reduce speed
 - multiple color themes
 - experiment with larger objects moving
 - dynamic canvas
@@ -52,3 +55,4 @@ X-make 3 objects (add large object) > only made 2, a ship object and planet obje
 X- repel ships
 X- remove unneeded help text
 X- hotbar at bottom for spawning things
+X- fix UI and scaling

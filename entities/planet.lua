@@ -11,19 +11,44 @@ function Planet:initialize(x, y, angle, speed, directions, repel, super)
 	self.lastX = x
 	self.lastY = y
 	
+	--[[
 	local sizeFactor = math.random(5000, 10000)
 	
 	self.size = (math.floor(sizeFactor/100)+5) * 2
 	self.mass = mass or sizeFactor
 	if self.super then self.mass = self.mass*100 end
+	]]
+	
+	self.massMin = 5000
+	self.massMax = 10000
+	
+	self.sizeMin = 20
+	self.sizeMax = 100
+	
+	self.alphaMin = 50
+	self.alphaMax = 120
+	
+	if self.super then
+		self.massMin = 50000
+		self.massMax = 1000000
+		
+		self.sizeMin = 100
+		self.sizeMax = 250
+		
+		self.alphaMin = 120
+		self.alphaMax = 250
+	end
+	
+	
+	self.color = {math.random(255), math.random(255), math.random(255)}
+	
+	local massPercent = .25
+	self:setMass(massPercent)
 	
 	self.gx = 0
 	self.gy = 0
 	self.vx = 0
 	self.vy = 0
-	
-	local alpha = 150
-	self.color = {math.random(255), math.random(255), math.random(255), alpha}
 	
 	self.destroy = false
 end
@@ -53,8 +78,23 @@ function Planet:update(dt)
 end
 
 function Planet:draw()
-	local alpha = 150
-	love.graphics.setColor(self.color[1], self.color[2], self.color[3], alpha)
+	love.graphics.setColor(self.color)
 	
 	love.graphics.circle('fill', self.x, self.y, self.size)
+end
+
+
+function Planet:getMass()
+	local mass = self.mass
+	local massPercent = (mass-self.massMin)/(self.massMax-self.massMin)
+	return mass, massPercent
+end
+
+function Planet:setMass(massPercent)
+	-- massPercent is 0-1
+	self.mass = math.floor(massPercent*(self.massMax-self.massMin) + self.massMin)
+	self.size = math.floor(massPercent*(self.sizeMax-self.sizeMin) + self.sizeMin)
+	self.alpha = math.floor(massPercent*(self.alphaMax-self.alphaMin) + self.alphaMin)
+	
+	self.color[4] = self.alpha
 end

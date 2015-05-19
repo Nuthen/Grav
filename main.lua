@@ -18,6 +18,8 @@ require 'entities.ship'
 require 'entities.planet'
 require 'entities.ui.UI'
 require 'entities.ui.changeButton'
+require 'entities.ui.pane'
+require 'entities.ui.slider'
 
 
 function love.load()

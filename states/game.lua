@@ -15,6 +15,8 @@ function game:enter()
 	self.axisWidth = 2
 	self.spawnObjectName = 'ship'
 	
+	self.font = font[32]
+	
 	
 	self.canvas = love.graphics.newCanvas(love.graphics.getWidth()*canvasScale, love.graphics.getHeight()*canvasScale)
 	
@@ -282,6 +284,27 @@ function game:setSpawnObject(objectName)
 	self.spawnObjectName = objectName
 end
 
+function game:showPane()
+	if self.camera.targetBool and self.dotSystem.dots[self.camera.target] then
+		return true
+	else
+		return false
+	end
+end
+
+function game:getTargetMass()
+	if self.camera.targetBool and self.dotSystem.dots[self.camera.target] then
+		return self.dotSystem.dots[self.camera.target]:getMass()
+	else
+		return -1
+	end
+end
+
+function game:setTargetMass(mass)
+	if self.camera.targetBool and self.dotSystem.dots[self.camera.target] then
+		self.dotSystem.dots[self.camera.target]:setMass(mass)
+	end
+end
 
 
 function game:mousepressed(x, y, mbutton)
@@ -332,7 +355,7 @@ function game:convertCoordinates(x, y)
 end
 
 function game:draw()
-    love.graphics.setFont(font[32])
+    love.graphics.setFont(self.font)
 	love.graphics.setColor(255, 255, 255)
 	
 	love.graphics.push()
@@ -365,6 +388,17 @@ function game:draw()
 	love.graphics.pop()
 	
 	love.graphics.setColor(13, 15, 122)
+	
+	--[[
+	if self.camera.targetBool then
+		-- show target mass
+		local text = self.dotSystem.dots[self.camera.target].mass..' kg'
+		local width = self.font:getWidth(text)
+		local height = self.font:getHeight()
+		love.graphics.print(text, love.graphics.getWidth()/2 - width/2, love.graphics.getHeight()/2 - height/2)
+	end
+	]]
+	
 	love.graphics.print(love.timer.getFPS(), 5, 5)
 	
 	if self.help then
@@ -414,11 +448,13 @@ function game:draw()
 	self.UI:draw()
 end
 
+function game:resize(w, h)
+	self.UI:resize(w, h)
+end
 
-
-
-
-
+function game:mousemoved(x, y, dx, dy)
+	self.UI:mousemoved(x, y, dx, dy)
+end
 
 
 

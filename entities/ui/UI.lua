@@ -2,7 +2,7 @@ UI = class('UI')
 
 function UI:initialize()
 	self.height = 50
-	-------------------
+	------------------- Option Bar -------------------
 	self.bar = Bar:new(love.graphics.getWidth()/2, 0, self.height)
 	
 	table.insert(self.bar.objects, Button:new('Trace', '(F1)', 'img/traceIcon32.png', 50, self.height, function() game:toggleTrace() end, true, true))
@@ -26,7 +26,7 @@ function UI:initialize()
 	self.bar:set()
 	
 	
-	-------------------
+	------------------- Object Bar -------------------
 	self.objectBar = Bar:new(love.graphics.getWidth()/2, love.graphics.getHeight()-self.height, self.height)
 	self.objectBar.switch = true -- only 1 can be selected at a time
 	self.objectBar.flip = true
@@ -37,19 +37,40 @@ function UI:initialize()
 	table.insert(self.objectBar.objects, Button:new('Repel Planet', '(4)', 'img/repelIcon32.png', 50, self.height, function() game:setSpawnObject('repel planet') end, true, false))
 	
 	self.objectBar:set()
+	
+	
+	
+	------------------- Mass UI-------------------
+	self.pane = Pane:new(love.graphics.getWidth()*3/4,  love.graphics.getHeight()/4, 150, 50, function() return game:showPane() end,
+		function() local mass, percent = game:getTargetMass() return mass..' kg', percent end,
+		function(mass) game:setTargetMass(mass) end)
+end
+
+function UI:mousemoved(x, y, dx, dy)
+	self.pane:mousemoved(x, y, dx, dy)
+end
+
+function UI:resize(w, h)
+	self.bar.x = w/2
+	self.bar:set()
+	self.objectBar.x = w/2
+	self.objectBar.y = h - self.height
+	self.objectBar:set()
 end
 
 function UI:update()
 	self.bar:update()
 	self.objectBar:update()
+	self.pane:update()
 end
 
 function UI:mousepressed(x, y, mbutton)
 	if mbutton == 'l' then
 		clicked1 = self.bar:mousepressed(x, y)
 		clicked2 = self.objectBar:mousepressed(x, y)
+		clicked3 = self.pane:mousepressed(x, y)
 		
-		if clicked1 or clicked2 then
+		if clicked1 or clicked2 or clicked3 then
 			return true
 		end
 	end
@@ -58,6 +79,7 @@ end
 function UI:draw()
 	self.bar:draw()
 	self.objectBar:draw()
+	self.pane:draw()
 end
 
 function UI:updateButton(tag)
