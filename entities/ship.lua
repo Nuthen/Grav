@@ -11,14 +11,6 @@ function Ship:initialize(x, y, angle, speed, directions, repel, super)
 	self.lastX = x
 	self.lastY = y
 	
-	--[[
-	local sizeFactor = math.random(1, 2000)
-	if self.super then sizeFactor = sizeFactor*2 end
-	
-	self.size = (math.floor(sizeFactor/150)+5) * 2
-	self.mass = mass or sizeFactor
-	]]
-	
 	self.massMin = 0
 	self.massMax = 2000
 	

@@ -81,13 +81,13 @@ function Bar:draw()
 	end
 end
 
-function Bar:updateButton(tag)
+function Bar:updateButton(tag, var)
 	local index = nil
 	
 	for i, button in ipairs(self.objects) do
 		if button.tag == tag then
 			if not self.switch or not button.on then
-				button:mousepressed(nil, nil, nil, true)
+				button:mousepressed(nil, nil, nil, true, var)
 				
 				index = i
 				break

@@ -251,13 +251,13 @@ function game:getDirections()
 	return self.dotSystem.directions
 end
 
-function game:toggleFollow()
+function game:toggleFollow(target)
 	if self.camera.targetBool then
 		self.camera.targetBool = false
 		return true
 	elseif #self.dotSystem.dots > 0 then -- if at least 1 object exists to follow
 		self.camera.targetBool = true
-		self.camera.target = 1
+		self.camera.target = target or 1
 		return true
 	else
 		return false
@@ -270,7 +270,11 @@ end
 
 function game:changeCameraTarget(b, target)
 	if target then
-		self.camera.targetBool = true
+		if not self.camera.targetBool then
+			self.camera.targetBool = true
+			self.UI:updateButton('Follow')
+		end
+		
 		self.camera.target = target
 	elseif #self.dotSystem.dots > 0 then
 		if b < 0 then

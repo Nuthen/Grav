@@ -44,9 +44,9 @@ function Button:update()
 	end
 end
 
-function Button:mousepressed(x, y, i, override)
+function Button:mousepressed(x, y, i, override, var)
 	if override or x > self.x - self.width/2 and x < self.x + self.width/2 then -- y check has already happened at a higher level
-		clicked = self.action()
+		clicked = self.action(var)
 		
 		if clicked or clicked == nil then
 			if self.toggle then

@@ -11,14 +11,6 @@ function Planet:initialize(x, y, angle, speed, directions, repel, super)
 	self.lastX = x
 	self.lastY = y
 	
-	--[[
-	local sizeFactor = math.random(5000, 10000)
-	
-	self.size = (math.floor(sizeFactor/100)+5) * 2
-	self.mass = mass or sizeFactor
-	if self.super then self.mass = self.mass*100 end
-	]]
-	
 	self.massMin = 5000
 	self.massMax = 10000
 	

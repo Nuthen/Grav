@@ -14,7 +14,7 @@ function UI:initialize()
 		function() game:changeDirections(1) end,
 		function() game:changeDirections(-1) end))
 		
-	table.insert(self.bar.objects, Button:new('Follow', '(F5)', 'img/cameraIcon32.png', 50, self.height, function() return game:toggleFollow() end, true, false))
+	table.insert(self.bar.objects, Button:new('Follow', '(F5)', 'img/cameraIcon32.png', 50, self.height, function(var) return game:toggleFollow(var) end, true, false))
 	table.insert(self.bar.objects, ChangeButton:new('< / >', 100, self.height, function() return game:getCameraTarget() end,
 		function() game:changeCameraTarget(1) end,
 		function() game:changeCameraTarget(-1) end))
@@ -83,7 +83,7 @@ function UI:draw()
 	self.pane:draw()
 end
 
-function UI:updateButton(tag)
-	self.bar:updateButton(tag)
-	self.objectBar:updateButton(tag)
+function UI:updateButton(tag, var)
+	self.bar:updateButton(tag, var)
+	self.objectBar:updateButton(tag, var)
 end

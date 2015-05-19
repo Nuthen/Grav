@@ -64,6 +64,8 @@ function DotSystem:update(dt, freeze)
 						game.UI:updateButton('Follow')
 					end
 				end
+			elseif i < game.camera.target then
+				game.camera.target = game.camera.target - 1
 			end
 		end
 	end
@@ -126,8 +128,11 @@ function DotSystem:absorbObject(dot, dot2, dist)
 		end
 	end
 	
-	if dot.mass > dot.maxMass then dot.maxMass = dot.mass end
-	if dot2.mass > dot2.maxMass then dot2.maxMass = dot2.mass end
+	if dot.mass > dot.massMin then dot.massMin = dot.mass end
+	if dot2.mass > dot2.massMin then dot2.massMin = dot2.mass end
+	
+	if dot.mass > dot.massMin then dot.massMin = dot.mass end
+	if dot2.mass > dot2.massMin then dot2.massMin = dot2.mass end
 end
 
 function DotSystem:keypressed(key, isrepeat)
@@ -139,7 +144,7 @@ function DotSystem:mousepressed(x, y, mbutton) -- will always be a left click
 	for i, object in ipairs(self.dots) do
 		if math.dist(x, y, object.x, object.y) <= object.size then -- set it to follow
 			clicked = true
-			game:changeCameraTarget(nil, i)
+			game.UI:updateButton('Follow', i)
 			break
 		end
 	end
