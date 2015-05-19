@@ -18,13 +18,13 @@ function ChangeButton:initialize(key, width, height, getVariable, buttonFunction
 	
 	self.font = font[24]
 	
-	self.color = {28, 28, 28}
+	self.color = {37, 51, 54}
 	self.tabColor = {21, 166, 189}
 	self.defaultIconColor = {255, 255, 255}
-	self.hoveredIconColor = {204, 144, 41}
+	self.hoveredIconColor = {181, 193, 230}
 	self.clickedIconColor = {15, 209, 154}
+	self.tagColor = {214, 235, 206}
 	
-	self.currentIconColor = {r = self.defaultIconColor[1], g = self.defaultIconColor[2], b = self.defaultIconColor[3]}
 	self.hovered = false
 	self.clickLight = false
 	self.action = action or function() end
@@ -125,8 +125,8 @@ function ChangeButton:drawTag()
 			dy = -self.tagHeight - border*2
 		end
 		
-		love.graphics.setColor(150, 150, 150, 125)
-		love.graphics.rectangle('fill', mX, mY + dy, self.tagWidth + border*2, self.tagHeight + border*2)
+		love.graphics.setColor(self.tagColor)
+		love.graphics.rectangle('fill', mX, mY + dy + 4, self.tagWidth + border*2, self.tagHeight + border*2)
 		
 		love.graphics.setColor(0, 0, 0)
 		love.graphics.print(self.key, mX+border, mY+border + dy)
@@ -165,13 +165,10 @@ function ModifierButton:initialize(text, dx, dy, width, height, action)
 	self.textWidth = self.font:getWidth(self.text)
 	self.textHeight = self.font:getHeight()
 	
-	self.color = {28, 28, 28}
-	self.tabColor = {21, 166, 189}
 	self.defaultIconColor = {255, 255, 255}
-	self.hoveredIconColor = {204, 144, 41}
+	self.hoveredIconColor = {181, 193, 230}
 	self.clickedIconColor = {15, 209, 154}
 	
-	self.currentIconColor = {r = self.defaultIconColor[1], g = self.defaultIconColor[2], b = self.defaultIconColor[3]}
 	self.hovered = false
 	self.clickLight = false
 	self.action = action or function() end
@@ -192,16 +189,6 @@ function ModifierButton:mousepressed(x, y, i)
 	if y >= self.y - self.height/2 and y <= self.y + self.height/2 then
 		if x > self.x - self.width/2 and x < self.x + self.width/2 then
 			self.action()
-			
-			
-			--[[
-			self.clickLight = true
-			self.currentIconColor = {r = self.clickedIconColor[1], g = self.clickedIconColor[2], b = self.clickedIconColor[3]}
-			tween.start(.5, game.UI.bar.objects[i].currentIconColor, {r = self.defaultIconColor[1], g = self.defaultIconColor[2], b = self.defaultIconColor[3]}, 'inOutQuad', function() 
-					self.clickLight = false
-					self.hovered = false
-				end)
-			]]
 		end
 	end
 end
@@ -212,7 +199,7 @@ function ModifierButton:draw()
 	local x, y = self.x, self.y
 	local w, h = self.width, self.height
 	
-	love.graphics.setColor(self.currentIconColor.r, self.currentIconColor.g, self.currentIconColor.b)
+	love.graphics.setColor(self.defaultIconColor)
 	if self.on then
 		love.graphics.setColor(self.clickedIconColor)
 	elseif self.hovered and not self.clickLight then

@@ -16,10 +16,14 @@ require 'entities.dotSystem'
 require 'entities.dot'
 require 'entities.ship'
 require 'entities.planet'
+
+-- ui
 require 'entities.ui.UI'
 require 'entities.ui.changeButton'
 require 'entities.ui.pane'
 require 'entities.ui.slider'
+require 'entities.ui.button'
+require 'entities.ui.bar'
 
 
 function love.load()

@@ -2,7 +2,6 @@
 
 -- Important --
 - add a visual way to tell type of an entity
-- improve UI colors
 
 -- Bugs --
 - fix weird ship disappearing bug
@@ -60,3 +59,4 @@ X- include a way to tell the player about everything they can create (ctrl modif
 X- click on objects to follow them
 X- added tag for change buttons
 X- position mass pane on window resize
+X- improve UI colors
