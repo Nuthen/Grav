@@ -33,6 +33,9 @@ function Planet:initialize(x, y, angle, speed, directions, repel, super)
 	
 	
 	self.color = {math.random(255), math.random(255), math.random(255)}
+	self.bandColor = {math.random(255), math.random(255), math.random(255)}
+	
+	self.bandWidth = 6
 	
 	local massPercent = .25
 	self:setMass(massPercent)
@@ -73,6 +76,12 @@ function Planet:draw()
 	love.graphics.setColor(self.color)
 	
 	love.graphics.circle('fill', self.x, self.y, self.size)
+	
+	if self.repel then
+		love.graphics.setLineWidth(self.bandWidth)
+		love.graphics.setColor(self.bandColor)
+		love.graphics.circle('line', self.x, self.y, self.size)
+	end
 end
 
 
@@ -87,6 +96,7 @@ function Planet:setMass(massPercent)
 	self.mass = math.floor(massPercent*(self.massMax-self.massMin) + self.massMin)
 	self.size = math.floor(massPercent*(self.sizeMax-self.sizeMin) + self.sizeMin)
 	self.alpha = math.floor(massPercent*(self.alphaMax-self.alphaMin) + self.alphaMin)
+	self.bandWidth = math.ceil(math.sqrt(self.size))
 	
 	self.color[4] = self.alpha
 end

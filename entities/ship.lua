@@ -32,6 +32,9 @@ function Ship:initialize(x, y, angle, speed, directions, repel, super)
 	end
 	
 	self.color = {math.random(255), math.random(255), math.random(255)}
+	self.bandColor = {math.random(255), math.random(255), math.random(255)}
+	
+	self.bandWidth = 6
 	
 	local massPercent = .25
 	self:setMass(massPercent)
@@ -83,6 +86,14 @@ function Ship:draw()
 		love.graphics.polygon('fill', self.x + math.cos(self.angle - math.rad(90))*w, self.y + math.sin(self.angle - math.rad(90))*w, 
 											  self.x + math.cos(self.angle + math.rad(90))*w, self.y + math.sin(self.angle + math.rad(90))*w,
 											  self.x + math.cos(self.angle)*h, self.y + math.sin(self.angle)*h)
+											  
+		if self.repel then
+			love.graphics.setLineWidth(self.bandWidth)
+			love.graphics.setColor(self.bandColor)
+			love.graphics.polygon('line', self.x + math.cos(self.angle - math.rad(90))*w, self.y + math.sin(self.angle - math.rad(90))*w, 
+												  self.x + math.cos(self.angle + math.rad(90))*w, self.y + math.sin(self.angle + math.rad(90))*w,
+												  self.x + math.cos(self.angle)*h, self.y + math.sin(self.angle)*h)
+		end
 	end
 end
 
@@ -98,6 +109,7 @@ function Ship:setMass(massPercent)
 	self.mass = math.floor(massPercent*(self.massMax-self.massMin) + self.massMin)
 	self.size = math.floor(massPercent*(self.sizeMax-self.sizeMin) + self.sizeMin)
 	self.alpha = math.floor(massPercent*(self.alphaMax-self.alphaMin) + self.alphaMin)
+	self.bandWidth = math.ceil(math.sqrt(self.size))
 	
 	self.color[4] = self.alpha
 	

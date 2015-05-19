@@ -253,7 +253,11 @@ end
 
 function game:toggleFollow(target)
 	if self.camera.targetBool then
-		self.camera.targetBool = false
+		if target then
+			self.camera.target = target
+		else
+			self.camera.targetBool = false
+		end
 		return true
 	elseif #self.dotSystem.dots > 0 then -- if at least 1 object exists to follow
 		self.camera.targetBool = true

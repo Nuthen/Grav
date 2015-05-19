@@ -1,7 +1,6 @@
 -- TODO --
 
 -- Important --
-- add a visual way to tell type of an entity
 
 -- Bugs --
 - fix weird ship disappearing bug
@@ -11,7 +10,8 @@
 - fix draw order
 
 -- Dream Features --
-- minimum resize
+- place objects over each other
+- fix minimum resize
 - toggle lines to show object speed
 - grid snapping (binded to alt I guess)
 - look at mass of earth compared to sun
@@ -60,3 +60,4 @@ X- click on objects to follow them
 X- added tag for change buttons
 X- position mass pane on window resize
 X- improve UI colors
+X- add a visual way to tell type of an entity
