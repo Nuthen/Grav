@@ -34,6 +34,12 @@
 - improve UI colors
 - fix target follow when entities are absorbed
 
+- dynamic canvas
+- snapping
+- find center point
+- hotbar at bottom for spawning things
+
+
 -- COMPLETED --
 
 X-set size to speed 

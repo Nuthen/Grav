@@ -13,6 +13,7 @@ function game:enter()
 	self.lines = true
 	local canvasScale = 16 -- scale factor of canvas relative to screen size
 	self.axisWidth = 2
+	self.spawnObjectName = 'ship'
 	
 	
 	self.canvas = love.graphics.newCanvas(love.graphics.getWidth()*canvasScale, love.graphics.getHeight()*canvasScale)
@@ -261,6 +262,11 @@ function game:changeCameraTarget(b)
 	end
 end
 
+function game:setSpawnObject(objectName)
+	self.spawnObjectName = objectName
+end
+
+
 
 function game:mousepressed(x, y, mbutton)
     if console.mousepressed(x, y, mbutton) then
@@ -275,7 +281,7 @@ function game:mousepressed(x, y, mbutton)
 	
 	local newX, newY = self:convertCoordinates(x, y)
 	
-	local clicked = self.UI.bar:mousepressed(x, y)
+	local clicked = self.UI:mousepressed(x, y, mbutton)
 	
 	if not clicked then
 		self.spawnClicked = true
@@ -288,7 +294,7 @@ function game:mousereleased(x, y, button)
 	
 	if self.spawnClicked then
 		self.spawnClicked = false
-		self.dotSystem:mousereleased(newX, newY, button)
+		self.dotSystem:mousereleased(newX, newY, button, self.spawnObjectName)
 	end
 end
 

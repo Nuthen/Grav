@@ -1,53 +1,81 @@
 UI = class('UI')
 
 function UI:initialize()
-	self.bar = Bar:new(love.graphics.getWidth()/2, 0)
+	self.height = 50
+	-------------------
+	self.bar = Bar:new(love.graphics.getWidth()/2, 0, self.height)
+	
+	table.insert(self.bar.objects, Button:new('Trace', '(F1)', 'img/traceIcon32.png', 50, self.height, function() game:toggleTrace() end, true, true))
+	table.insert(self.bar.objects, Button:new('Objects', '(F2)', 'img/objectIcon32.png', 50, self.height, function() game:toggleObjects() end, true, true))
+	table.insert(self.bar.objects, Button:new('Absorb', '(F3)', 'img/absorbIcon32alt.png', 50, self.height, function() game:toggleAbsorb() end, true, false))
+	
+	table.insert(self.bar.objects, Button:new('Directions', '(F4)', 'img/directionIcon32.png', 50, self.height, function() game:toggleLimit() end, true, false))
+	table.insert(self.bar.objects, ChangeButton:new(100, self.height, function() return game:getDirections() end,
+		function() game:changeDirections(1) end,
+		function() game:changeDirections(-1) end))
+		
+	table.insert(self.bar.objects, Button:new('Follow', '(F5)', 'img/cameraIcon32.png', 50, self.height, function() game:toggleFollow() end, true, false))
+	table.insert(self.bar.objects, ChangeButton:new(100, self.height, function() return game:getCameraTarget() end,
+		function() game:changeCameraTarget(1) end,
+		function() game:changeCameraTarget(-1) end))
+	
+	table.insert(self.bar.objects, Button:new('Pause', '(Space)', 'img/pause32.png', 50, self.height, function() game:toggleFreeze() end, true, false))
+	table.insert(self.bar.objects, Button:new('Origin', '(F6)', 'img/origin32.png', 50, self.height, function() game:resetCamera() end, false))
+	table.insert(self.bar.objects, Button:new('Clear', '(F7)', 'img/clearIcon32X.png', 50, self.height, function() game:clear() end, false))
+	
+	self.bar:set()
+	
+	
+	-------------------
+	self.objectBar = Bar:new(love.graphics.getWidth()/2, love.graphics.getHeight()-self.height, self.height)
+	self.objectBar.switch = true -- only 1 can be selected at a time
+	self.objectBar.flip = true
+	
+	table.insert(self.objectBar.objects, Button:new('Ship', '(Space)', 'img/shipIcon32.png', 50, self.height, function() game:setSpawnObject('ship') end, true, true))
+	table.insert(self.objectBar.objects, Button:new('Planet', '(Space)', 'img/planetIcon32.png', 50, self.height, function() game:setSpawnObject('planet') end, true, false))
+	table.insert(self.objectBar.objects, Button:new('Repel', '(Space)', 'img/repelIcon32.png', 50, self.height, function() game:setSpawnObject('repel') end, true, false))
+	
+	self.objectBar:set()
 end
 
 function UI:mousepressed(x, y, mbutton)
 	if mbutton == 'l' then
-		self.bar:mousepressed(x, y)
+		clicked = self.bar:mousepressed(x, y)
+		clicked = self.objectBar:mousepressed(x, y)
+		
+		if clicked then
+			return true
+		end
 	end
 end
 
 function UI:draw()
 	self.bar:draw()
+	self.objectBar:draw()
 end
 
 function UI:updateButton(tag)
 	self.bar:updateButton(tag)
+	self.objectBar:updateButton(tag)
 end
 
 
 Bar = class('Bar')
 
-function Bar:initialize(x, y)
+function Bar:initialize(x, y, height)
 	self.x = x
 	self.y = y
 
 	self.objects = {}
 	
-	self.height = 50
-	table.insert(self.objects, Button:new('Trace', '(F1)', 'img/traceIcon32.png', 50, self.height, function() game:toggleTrace() end, true, true))
-	table.insert(self.objects, Button:new('Objects', '(F2)', 'img/objectIcon32.png', 50, self.height, function() game:toggleObjects() end, true, true))
-	table.insert(self.objects, Button:new('Absorb', '(F3)', 'img/absorbIcon32alt.png', 50, self.height, function() game:toggleAbsorb() end, true, false))
+	self.height = height or 50
+	self.width = 0
 	
-	table.insert(self.objects, Button:new('Directions', '(F4)', 'img/directionIcon32.png', 50, self.height, function() game:toggleLimit() end, true, false))
-	table.insert(self.objects, ChangeButton:new(100, self.height, function() return game:getDirections() end,
-		function() game:changeDirections(1) end,
-		function() game:changeDirections(-1) end))
-		
-	table.insert(self.objects, Button:new('Follow', '(F5)', 'img/cameraIcon32.png', 50, self.height, function() game:toggleFollow() end, true, false))
-	table.insert(self.objects, ChangeButton:new(100, self.height, function() return game:getCameraTarget() end,
-		function() game:changeCameraTarget(1) end,
-		function() game:changeCameraTarget(-1) end))
-	
-	table.insert(self.objects, Button:new('Pause', '(Space)', 'img/pause32.png', 50, self.height, function() game:toggleFreeze() end, true, false))
-	table.insert(self.objects, Button:new('Origin', '(F6)', 'img/origin32.png', 50, self.height, function() game:resetCamera() end, false))
-	table.insert(self.objects, Button:new('Clear', '(F7)', 'img/clearIcon32X.png', 50, self.height, function() game:clear() end, false))
-	
-	
-	
+	self.switch = false
+	self.flip = false
+end
+
+function Bar:set() -- used once objects are set
 	local width = 0
 	for i, object in ipairs(self.objects) do
 		width = width + object.width
@@ -73,9 +101,25 @@ function Bar:update()
 end
 
 function Bar:mousepressed(x, y)
-	if y <= self.height then -- height is uniform for all objects on the bar
+	local clicked = nil
+	
+	if y >= self.y and y <= self.y + self.height then -- height is uniform for all objects on the bar
 		for i, object in ipairs(self.objects) do
-			object:mousepressed(x, y, i)
+			if not self.switch or not object.on then
+				clicked = object:mousepressed(x, y, i)
+			end
+			
+			if clicked then
+				break
+			end
+		end
+		
+		if self.switch and clicked then
+			for i, object in ipairs(self.objects) do
+				if i ~= clicked then
+					object.on = false
+				end
+			end
 		end
 		
 		return true
@@ -87,7 +131,7 @@ function Bar:draw()
 		local mod = 0
 		if i == 1 then mod = -1 end
 		if i == #self.objects then mod = 1 end
-		object:draw(mod)
+		object:draw(mod, self.flip)
 	end
 	
 	for i, object in ipairs(self.objects) do
@@ -143,7 +187,8 @@ function Button:update(x, y)
 	self.hovered = false
 	
 	local x, y = love.mouse.getPosition()
-	if y <= self.height then
+	
+	if y >= self.y and y <= self.y + self.height then -- height is uniform for all objects on the bar
 		if x > self.x - self.width/2 and x < self.x + self.width/2 then
 			self.hovered = true
 		end
@@ -171,10 +216,12 @@ function Button:mousepressed(x, y, i, override)
 				end)
 			]]
 		end
+		
+		return i
 	end
 end
 
-function Button:draw(mod)
+function Button:draw(mod, flip)
     love.graphics.setFont(self.font)
 	
 	local x, y = self.x, self.y
@@ -182,19 +229,25 @@ function Button:draw(mod)
 	love.graphics.setColor(self.color)
 	love.graphics.rectangle('fill', x - w/2, y, w, h)
 	
-	if mod == 1 then
-		love.graphics.polygon('fill', x+w/2, y, x+w/2+h+self.tabHeight, y, x+w/2, y+h+self.tabHeight)
-	elseif mod == -1 then
-		love.graphics.polygon('fill', x-w/2, y, x-w/2-h-self.tabHeight, y, x-w/2, y+h+self.tabHeight)
+	if mod ~= 0 then
+		if flip then
+			love.graphics.polygon('fill', x+mod*w/2, y+h, x+mod*(w/2+h+self.tabHeight), y+h, x+mod*w/2, y-self.tabHeight)
+		else
+			love.graphics.polygon('fill', x+mod*w/2, y, x+mod*(w/2+h+self.tabHeight), y, x+mod*w/2, y+h+self.tabHeight)
+		end
 	end
 	
 	love.graphics.setColor(self.tabColor)
-	love.graphics.rectangle('fill', x - w/2, y + h, w, self.tabHeight)
+	local dy = 0
+	if flip then dy = -h-self.tabHeight end
+	love.graphics.rectangle('fill', x - w/2, y + h + dy, w, self.tabHeight)
 	
-	if mod == 1 then
-		love.graphics.polygon('fill', x+w/2, y+h, x+w/2+self.tabHeight, y+h, x+w/2, y+h+self.tabHeight)
-	elseif mod == -1 then
-		love.graphics.polygon('fill', x-w/2, y+h, x-w/2-self.tabHeight, y+h, x-w/2, y+h+self.tabHeight)
+	if mod ~= 0 then
+		if flip then
+			love.graphics.polygon('fill', x+mod*w/2, y, x+mod*(w/2+self.tabHeight), y, x+mod*w/2, y-self.tabHeight)
+		else
+			love.graphics.polygon('fill', x+mod*w/2, y+h, x+mod*(w/2+self.tabHeight), y+h, x+mod*w/2, y+h+self.tabHeight)
+		end
 	end
 	
 	love.graphics.setColor(self.currentIconColor.r, self.currentIconColor.g, self.currentIconColor.b)

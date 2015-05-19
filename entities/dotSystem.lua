@@ -129,7 +129,7 @@ function DotSystem:mousepressed(x, y, mbutton)
 	end
 end
 
-function DotSystem:mousereleased(x, y, mbutton)
+function DotSystem:mousereleased(x, y, mbutton, spawnObjectName)
 	self.spawning = false
 	
 	local directions = self.directions
@@ -148,19 +148,19 @@ function DotSystem:mousereleased(x, y, mbutton)
 		special = true
 	end
 	
-	if mbutton == 'l' then
+	if spawnObjectName == 'ship' then
 		if special then -- massless
 			table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, 0, directions))
 		else
 			table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, nil, directions))
 		end
-	elseif mbutton == 'r' then
+	elseif mbutton == 'r' or spawnObjectName == 'planet' then
 		if special then -- gigantic
 			table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, nil, directions, true, true))
 		else
 			table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, nil, directions, true))
 		end
-	elseif mbutton == 'm' then -- repel
+	elseif mbutton == 'm' or spawnObjectName == 'repel' then -- repel
 		if special then -- gigantic
 			table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, nil, directions, true, true, true))
 		else
