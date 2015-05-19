@@ -41,9 +41,7 @@ function game:enter()
 end
 
 function game:update(dt)
-	if not self.freeze then
-		self.dotSystem:update(dt)
-	end
+	self.dotSystem:update(dt, self.freeze)
 	
 	if self.camera.targetBool then -- focused camera
 		if self.dotSystem.dots[self.camera.target] then
@@ -270,8 +268,11 @@ function game:getCameraTarget()
 	return self.camera.target
 end
 
-function game:changeCameraTarget(b)
-	if #self.dotSystem.dots > 0 then
+function game:changeCameraTarget(b, target)
+	if target then
+		self.camera.targetBool = true
+		self.camera.target = target
+	elseif #self.dotSystem.dots > 0 then
 		if b < 0 then
 			if self.camera.target > 1 then -- assumes b is -1
 				self.camera.target = self.camera.target + b

@@ -14,6 +14,9 @@ function Pane:initialize(x, y, width, height, display, var, setVar)
 	self.width = width or 150
 	self.height = height or 50
 	
+	self.screenWidth = love.graphics.getWidth()
+	self.screenHeight = love.graphics.getHeight()
+	
 	self.slider = Slider:new(self.x, self.y+self.height/4, self.width*3/4)
 	
 	self.moving = false
@@ -25,6 +28,11 @@ function Pane:initialize(x, y, width, height, display, var, setVar)
 	self.tabColor = {21, 166, 189}
 	
 	self.font = font[24]
+end
+
+function Pane:setSlider()
+	self.slider.x = self.x
+	self.slider.y = self.y+self.height/4
 end
 
 function Pane:update()
@@ -57,7 +65,7 @@ end
 function Pane:mousemoved(x, y, dx, dy)
 	if self.display() and love.mouse.isDown('l') and self.moving then
 		self.x, self.y = self.x+dx, self.y+dy
-		self.slider.x, self.slider.y = self.slider.x+dx, self.slider.y+dy
+		self:setSlider()
 	end
 end
 
@@ -106,6 +114,8 @@ function Pane:draw()
 												  x+w/2-capH+tabH, y+i*(h/2+capH-tabH))
 		end
 		
+		self.variable, self.slider.sliderPos = self.var()
+		
 		local text = self.variable
 		--local text = self.slider.sliderPos
 		local textWidth = self.font:getWidth(text)
@@ -114,4 +124,16 @@ function Pane:draw()
 		love.graphics.print(text, x-textWidth/2, y-textHeight/2-h/4)
 		self.slider:draw()
 	end
+end
+
+function Pane:resize(w, h)
+	local original
+
+	self.x = w*self.x/self.screenWidth
+	self.y = h*self.y/self.screenHeight
+	
+	self:setSlider()
+	
+	self.screenWidth = w
+	self.screenHeight = h
 end

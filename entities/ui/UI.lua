@@ -10,12 +10,12 @@ function UI:initialize()
 	table.insert(self.bar.objects, Button:new('Absorb', '(F3)', 'img/absorbIcon32alt.png', 50, self.height, function() game:toggleAbsorb() end, true, false))
 	
 	table.insert(self.bar.objects, Button:new('Directions', '(F4)', 'img/directionIcon32.png', 50, self.height, function() game:toggleLimit() end, true, false))
-	table.insert(self.bar.objects, ChangeButton:new(100, self.height, function() return game:getDirections() end,
+	table.insert(self.bar.objects, ChangeButton:new('+ / -', 100, self.height, function() return game:getDirections() end,
 		function() game:changeDirections(1) end,
 		function() game:changeDirections(-1) end))
 		
 	table.insert(self.bar.objects, Button:new('Follow', '(F5)', 'img/cameraIcon32.png', 50, self.height, function() return game:toggleFollow() end, true, false))
-	table.insert(self.bar.objects, ChangeButton:new(100, self.height, function() return game:getCameraTarget() end,
+	table.insert(self.bar.objects, ChangeButton:new('< / >', 100, self.height, function() return game:getCameraTarget() end,
 		function() game:changeCameraTarget(1) end,
 		function() game:changeCameraTarget(-1) end))
 	
@@ -56,6 +56,7 @@ function UI:resize(w, h)
 	self.objectBar.x = w/2
 	self.objectBar.y = h - self.height
 	self.objectBar:set()
+	self.pane:resize(w, h)
 end
 
 function UI:update()
@@ -232,7 +233,7 @@ function Button:initialize(tag, key, img, width, height, action, toggle, default
 	self.tagHeight = self.font:getHeight()
 end
 
-function Button:update(x, y)
+function Button:update()
 	self.hovered = false
 	
 	local x, y = love.mouse.getPosition()

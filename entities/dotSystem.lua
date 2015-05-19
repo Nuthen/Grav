@@ -19,31 +19,33 @@ function DotSystem:initialize()
 	self.arrowWidth = 4
 end
 
-function DotSystem:update(dt)
-	for i, dot in ipairs(self.dots) do -- iterate through each object and add together total gravity based on every other object
-		local gx, gy = 0, 0
-		for j, dot2 in ipairs(self.dots) do
-			if i ~= j then -- different objects
-				local dist = math.dist(dot.x, dot.y, dot2.x, dot2.y)
-				local angle = math.angle(dot.x, dot.y, dot2.x, dot2.y)
-				
-				local g = dot2.mass/(dist^2) -- gravity formula
-				if dot2.repel then
-					g = g * -1
-				end
-				
-				if g > self.maxG then g = self.maxG end
-				gx = gx + math.cos(angle)*g
-				gy = gy + math.sin(angle)*g
-				
-				if game.absorb and dist < (dot.size + dot2.size) then -- objects overlap, one is absorbed
-					self:absorbObject(dot, dot2, dist)
+function DotSystem:update(dt, freeze)
+	if not freeze then
+		for i, dot in ipairs(self.dots) do -- iterate through each object and add together total gravity based on every other object
+			local gx, gy = 0, 0
+			for j, dot2 in ipairs(self.dots) do
+				if i ~= j then -- different objects
+					local dist = math.dist(dot.x, dot.y, dot2.x, dot2.y)
+					local angle = math.angle(dot.x, dot.y, dot2.x, dot2.y)
+					
+					local g = dot2.mass/(dist^2) -- gravity formula
+					if dot2.repel then
+						g = g * -1
+					end
+					
+					if g > self.maxG then g = self.maxG end
+					gx = gx + math.cos(angle)*g
+					gy = gy + math.sin(angle)*g
+					
+					if game.absorb and dist < (dot.size + dot2.size) then -- objects overlap, one is absorbed
+						self:absorbObject(dot, dot2, dist)
+					end
 				end
 			end
+		
+			dot.gx = gx
+			dot.gy = gy
 		end
-	
-		dot.gx = gx
-		dot.gy = gy
 	end
 	
 	-- delete dead objects
@@ -66,24 +68,26 @@ function DotSystem:update(dt)
 		end
 	end
 	
-	for i, dot in ipairs(self.dots) do
-		dot:update(dt)
-	end
-	
-	if game.lines then -- draw line traces
-		game.canvas:renderTo(function()
-			love.graphics.push()
-			love.graphics.translate(game.camera.x, game.camera.y)
-			
-			love.graphics.setLineWidth(game.traceWidth)
-			
-			for i, dot in ipairs(self.dots) do
-				love.graphics.setColor(dot.color[1], dot.color[2], dot.color[3], self.traceAlpha)
-				love.graphics.line(dot.lastX - game.camera.x, dot.lastY - game.camera.y, dot.x - game.camera.x, dot.y - game.camera.y) -- draws a line between each objects current and last point on the canvas
-			end
-			
-			love.graphics.pop()
-		end)
+	if not freeze then
+		for i, dot in ipairs(self.dots) do
+			dot:update(dt)
+		end
+		
+		if game.lines then -- draw line traces
+			game.canvas:renderTo(function()
+				love.graphics.push()
+				love.graphics.translate(game.camera.x, game.camera.y)
+				
+				love.graphics.setLineWidth(game.traceWidth)
+				
+				for i, dot in ipairs(self.dots) do
+					love.graphics.setColor(dot.color[1], dot.color[2], dot.color[3], self.traceAlpha)
+					love.graphics.line(dot.lastX - game.camera.x, dot.lastY - game.camera.y, dot.x - game.camera.x, dot.y - game.camera.y) -- draws a line between each objects current and last point on the canvas
+				end
+				
+				love.graphics.pop()
+			end)
+		end
 	end
 	
 	-- if ctrl is pressed, self.special is true
@@ -130,8 +134,17 @@ function DotSystem:keypressed(key, isrepeat)
 	
 end
 
-function DotSystem:mousepressed(x, y, mbutton)
-	if mbutton == 'l' then
+function DotSystem:mousepressed(x, y, mbutton) -- will always be a left click
+	local clicked = false
+	for i, object in ipairs(self.dots) do
+		if math.dist(x, y, object.x, object.y) <= object.size then -- set it to follow
+			clicked = true
+			game:changeCameraTarget(nil, i)
+			break
+		end
+	end
+	
+	if not clicked then
 		self.spawning = true
 		self.spawnX = x
 		self.spawnY = y
@@ -139,47 +152,49 @@ function DotSystem:mousepressed(x, y, mbutton)
 end
 
 function DotSystem:mousereleased(x, y, mbutton, spawnObjectName)
-	self.spawning = false
-	
-	local directions = self.directions
-	if not self.limit then
-		directions = 0
-	end
-	
-	local vx = x - self.spawnX
-	local vy = y - self.spawnY
-	
-	local angle = math.angle(0, 0, vx, vy)
-	local speed = math.sqrt(vx^2 + vy^2)
-	
-	local special = false
-	if love.keyboard.isDown('lctrl', 'rctrl') then
-		special = true
-	end
-	
-	if spawnObjectName == 'ship' then
-		if special then -- super
-			table.insert(self.dots, Ship:new(self.spawnX, self.spawnY, angle, speed, directions, false, true))
-		else
-			table.insert(self.dots, Ship:new(self.spawnX, self.spawnY, angle, speed, directions, false))
+	if self.spawning then
+		self.spawning = false
+		
+		local directions = self.directions
+		if not self.limit then
+			directions = 0
 		end
-	elseif spawnObjectName == 'repel ship' then
-		if special then -- super
-			table.insert(self.dots, Ship:new(self.spawnX, self.spawnY, angle, speed, directions, true, true))
-		else
-			table.insert(self.dots, Ship:new(self.spawnX, self.spawnY, angle, speed, directions, true))
+		
+		local vx = x - self.spawnX
+		local vy = y - self.spawnY
+		
+		local angle = math.angle(0, 0, vx, vy)
+		local speed = math.sqrt(vx^2 + vy^2)
+		
+		local special = false
+		if love.keyboard.isDown('lctrl', 'rctrl') then
+			special = true
 		end
-	elseif spawnObjectName == 'planet' then
-		if special then -- super
-			table.insert(self.dots, Planet:new(self.spawnX, self.spawnY, angle, speed, directions, false, true))
-		else
-			table.insert(self.dots, Planet:new(self.spawnX, self.spawnY, angle, speed, directions, false))
-		end
-	elseif spawnObjectName == 'repel planet' then -- repel
-		if special then -- super
-			table.insert(self.dots, Planet:new(self.spawnX, self.spawnY, angle, speed, directions, true, true))
-		else
-			table.insert(self.dots, Planet:new(self.spawnX, self.spawnY, angle, speed, directions, true))
+		
+		if spawnObjectName == 'ship' then
+			if special then -- super
+				table.insert(self.dots, Ship:new(self.spawnX, self.spawnY, angle, speed, directions, false, true))
+			else
+				table.insert(self.dots, Ship:new(self.spawnX, self.spawnY, angle, speed, directions, false))
+			end
+		elseif spawnObjectName == 'repel ship' then
+			if special then -- super
+				table.insert(self.dots, Ship:new(self.spawnX, self.spawnY, angle, speed, directions, true, true))
+			else
+				table.insert(self.dots, Ship:new(self.spawnX, self.spawnY, angle, speed, directions, true))
+			end
+		elseif spawnObjectName == 'planet' then
+			if special then -- super
+				table.insert(self.dots, Planet:new(self.spawnX, self.spawnY, angle, speed, directions, false, true))
+			else
+				table.insert(self.dots, Planet:new(self.spawnX, self.spawnY, angle, speed, directions, false))
+			end
+		elseif spawnObjectName == 'repel planet' then -- repel
+			if special then -- super
+				table.insert(self.dots, Planet:new(self.spawnX, self.spawnY, angle, speed, directions, true, true))
+			else
+				table.insert(self.dots, Planet:new(self.spawnX, self.spawnY, angle, speed, directions, true))
+			end
 		end
 	end
 end

@@ -2,7 +2,7 @@
 
 ChangeButton = class('ChangeButton')
 
-function ChangeButton:initialize(width, height, getVariable, buttonFunction1, buttonFunction2)
+function ChangeButton:initialize(key, width, height, getVariable, buttonFunction1, buttonFunction2)
 	--self.tag = tag
 	--self.img = love.graphics.newImage(img)
 	
@@ -29,8 +29,9 @@ function ChangeButton:initialize(width, height, getVariable, buttonFunction1, bu
 	self.clickLight = false
 	self.action = action or function() end
 	
-	--self.tagWidth = self.font:getWidth(self.tag)
-	--self.tagHeight = self.font:getHeight()
+	self.key = key
+	self.tagWidth = self.font:getWidth(key) + 14
+	self.tagHeight = self.font:getHeight()
 	
 	local w = width
 	local h = self.height
@@ -42,9 +43,18 @@ function ChangeButton:initialize(width, height, getVariable, buttonFunction1, bu
 	table.insert(self.buttons, ModifierButton:new('-', -w/4, h/2, 20, 20, buttonFunction2))
 end
 
-function ChangeButton:update(x, y)
+function ChangeButton:update()
 	for k, button in pairs(self.buttons) do
-		button:update(x, y)
+		button:update()
+	end
+	
+	self.hovered = false
+	local x, y = love.mouse.getPosition()
+	
+	if y >= self.y and y <= self.y + self.height then -- height is uniform for all objects on the bar
+		if x > self.x - self.width/2 and x < self.x + self.width/2 then
+			self.hovered = true
+		end
 	end
 end
 
@@ -106,7 +116,21 @@ function ChangeButton:draw(mod)
 end
 
 function ChangeButton:drawTag()
-
+	if self.hovered then
+		local mX, mY = love.mouse:getPosition()
+		local border = 4
+		
+		local dy = 0
+		if mY + self.tagHeight + border*2 > love.graphics.getHeight() then
+			dy = -self.tagHeight - border*2
+		end
+		
+		love.graphics.setColor(150, 150, 150, 125)
+		love.graphics.rectangle('fill', mX, mY + dy, self.tagWidth + border*2, self.tagHeight + border*2)
+		
+		love.graphics.setColor(0, 0, 0)
+		love.graphics.print(self.key, mX+border, mY+border + dy)
+	end
 end
 
 
@@ -153,7 +177,7 @@ function ModifierButton:initialize(text, dx, dy, width, height, action)
 	self.action = action or function() end
 end
 
-function ModifierButton:update(x, y)
+function ModifierButton:update()
 	self.hovered = false
 	
 	local x, y = love.mouse.getPosition()

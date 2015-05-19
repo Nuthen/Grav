@@ -1,15 +1,8 @@
 -- TODO --
 
 -- Important --
-- include a way to tell the player about everything they can create (ctrl modifier)
-- show mass for followed entity
 - add a visual way to tell type of an entity
-- sliders for zoom and object mass
 - improve UI colors
-- grid snapping (binded to alt I guess)
-- click on objects to follow them
-- mass of earth compared to sun
-- scale mass pane on window resize
 
 -- Bugs --
 - fix weird ship disappearing bug
@@ -19,6 +12,10 @@
 - fix draw order
 
 -- Dream Features --
+- minimum resize
+- toggle lines to show object speed
+- grid snapping (binded to alt I guess)
+- look at mass of earth compared to sun
 - add a ship spawner
 - make trace colors lighter with less mass
 - increase/reduce speed
@@ -58,3 +55,8 @@ X- fix UI and scaling
 X- less randomness
 X- better sized ships
 X- scale alpha based on mass
+X- show mass for followed entity
+X- include a way to tell the player about everything they can create (ctrl modifier)
+X- click on objects to follow them
+X- added tag for change buttons
+X- position mass pane on window resize
