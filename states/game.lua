@@ -65,7 +65,7 @@ function game:update(dt)
 		end
 	end
 	
-	self.UI.bar:update()
+	self.UI:update()
 end
 
 function game:keypressed(key, isrepeat)
@@ -160,6 +160,16 @@ function game:keypressed(key, isrepeat)
 		self:changeDirections(1)
 	elseif key == '-' then
 		self:changeDirections(-1)
+	end
+	
+	if key == '1' then
+		self.UI:updateButton('Ship')
+	elseif key == '2' then
+		self.UI:updateButton('Repel Ship')
+	elseif key == '3' then
+		self.UI:updateButton('Planet')
+	elseif key == '4' then
+		self.UI:updateButton('Repel Planet')
 	end
 	
 	self.dotSystem:keypressed(key, isrepeat)

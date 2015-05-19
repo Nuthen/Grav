@@ -122,7 +122,7 @@ function DotSystem:keypressed(key, isrepeat)
 end
 
 function DotSystem:mousepressed(x, y, mbutton)
-	if mbutton == 'l' or mbutton == 'r' or mbutton == 'm' then
+	if mbutton == 'l' then
 		self.spawning = true
 		self.spawnX = x
 		self.spawnY = y
@@ -149,22 +149,28 @@ function DotSystem:mousereleased(x, y, mbutton, spawnObjectName)
 	end
 	
 	if spawnObjectName == 'ship' then
-		if special then -- massless
-			table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, 0, directions))
+		if special then -- super
+			table.insert(self.dots, Ship:new(self.spawnX, self.spawnY, angle, speed, directions, false, true))
 		else
-			table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, nil, directions))
+			table.insert(self.dots, Ship:new(self.spawnX, self.spawnY, angle, speed, directions, false))
 		end
-	elseif mbutton == 'r' or spawnObjectName == 'planet' then
-		if special then -- gigantic
-			table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, nil, directions, true, true))
+	elseif spawnObjectName == 'repel ship' then
+		if special then -- super
+			table.insert(self.dots, Ship:new(self.spawnX, self.spawnY, angle, speed, directions, true, true))
 		else
-			table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, nil, directions, true))
+			table.insert(self.dots, Ship:new(self.spawnX, self.spawnY, angle, speed, directions, true))
 		end
-	elseif mbutton == 'm' or spawnObjectName == 'repel' then -- repel
-		if special then -- gigantic
-			table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, nil, directions, true, true, true))
+	elseif spawnObjectName == 'planet' then
+		if special then -- super
+			table.insert(self.dots, Planet:new(self.spawnX, self.spawnY, angle, speed, directions, false, true))
 		else
-			table.insert(self.dots, Dot:new(self.spawnX, self.spawnY, angle, speed, nil, directions, true, false, true))
+			table.insert(self.dots, Planet:new(self.spawnX, self.spawnY, angle, speed, directions, false))
+		end
+	elseif spawnObjectName == 'repel planet' then -- repel
+		if special then -- super
+			table.insert(self.dots, Planet:new(self.spawnX, self.spawnY, angle, speed, directions, true, true))
+		else
+			table.insert(self.dots, Planet:new(self.spawnX, self.spawnY, angle, speed, directions, true))
 		end
 	end
 end

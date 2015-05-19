@@ -31,11 +31,17 @@ function UI:initialize()
 	self.objectBar.switch = true -- only 1 can be selected at a time
 	self.objectBar.flip = true
 	
-	table.insert(self.objectBar.objects, Button:new('Ship', '(Space)', 'img/shipIcon32.png', 50, self.height, function() game:setSpawnObject('ship') end, true, true))
-	table.insert(self.objectBar.objects, Button:new('Planet', '(Space)', 'img/planetIcon32.png', 50, self.height, function() game:setSpawnObject('planet') end, true, false))
-	table.insert(self.objectBar.objects, Button:new('Repel', '(Space)', 'img/repelIcon32.png', 50, self.height, function() game:setSpawnObject('repel') end, true, false))
+	table.insert(self.objectBar.objects, Button:new('Ship', '(1)', 'img/shipIcon32.png', 50, self.height, function() game:setSpawnObject('ship') end, true, true))
+	table.insert(self.objectBar.objects, Button:new('Repel Ship', '(2)', 'img/shipRepelIcon32.png', 50, self.height, function() game:setSpawnObject('repel ship') end, true, false))
+	table.insert(self.objectBar.objects, Button:new('Planet', '(3)', 'img/planetIcon32.png', 50, self.height, function() game:setSpawnObject('planet') end, true, false))
+	table.insert(self.objectBar.objects, Button:new('Repel Planet', '(4)', 'img/repelIcon32.png', 50, self.height, function() game:setSpawnObject('repel planet') end, true, false))
 	
 	self.objectBar:set()
+end
+
+function UI:update()
+	self.bar:update()
+	self.objectBar:update()
 end
 
 function UI:mousepressed(x, y, mbutton)
@@ -102,7 +108,7 @@ end
 
 function Bar:mousepressed(x, y)
 	local clicked = false
-	local j = nil
+	local index = nil
 	
 	if y >= self.y and y <= self.y + self.height then -- height is uniform for all objects on the bar
 		for i, object in ipairs(self.objects) do
@@ -110,7 +116,7 @@ function Bar:mousepressed(x, y)
 				clicked = object:mousepressed(x, y, i)
 				
 				if clicked then
-					j = i
+					index = i
 					break
 				end
 			end
@@ -118,13 +124,15 @@ function Bar:mousepressed(x, y)
 		
 		if self.switch and clicked then
 			for i, object in ipairs(self.objects) do
-				if i ~= j then
+				if i ~= index then
 					object.on = false
 				end
 			end
 		end
 		
-		return true
+		if clicked then
+			return true
+		end
 	end
 end
 
@@ -142,9 +150,26 @@ function Bar:draw()
 end
 
 function Bar:updateButton(tag)
-	for k, button in pairs(self.objects) do
+	local index = nil
+	
+	for i, button in ipairs(self.objects) do
 		if button.tag == tag then
-			button:mousepressed(nil, nil, nil, true)
+			if not self.switch or not button.on then
+				button:mousepressed(nil, nil, nil, true)
+				
+				index = i
+				break
+			end
+		end
+	end
+	
+	if self.switch then
+		if index then
+			for i, button in ipairs(self.objects) do
+				if i ~= index then
+					button.on = false
+				end
+			end
 		end
 	end
 end
@@ -267,11 +292,16 @@ function Button:drawTag()
 		local mX, mY = love.mouse:getPosition()
 		local border = 4
 		
+		local dy = 0
+		if mY + self.tagHeight + border*2 > love.graphics.getHeight() then
+			dy = -self.tagHeight - border*2
+		end
+		
 		love.graphics.setColor(150, 150, 150, 125)
-		love.graphics.rectangle('fill', mX, mY, self.tagWidth + border*2, self.tagHeight + border*2)
+		love.graphics.rectangle('fill', mX, mY + dy, self.tagWidth + border*2, self.tagHeight + border*2)
 		
 		love.graphics.setColor(0, 0, 0)
-		love.graphics.print(self.tag..' '..self.key, mX+border, mY+border)
+		love.graphics.print(self.tag..' '..self.key, mX+border, mY+border + dy)
 	end
 end
 

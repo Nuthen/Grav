@@ -1,45 +1,37 @@
 -- TODO --
 
--make 3 objects (add large object)
--experiment with larger objects moving
-
-- add camera focus rotation (switch between them automatically)
-- perhaps more game-like feautures
-
-- grid snapping (binded to alt I guess)
+-- Important --
+- include a way to tell the player about everything they can create (ctrl modifier)
 - show mass for followed entity
-
-- include a way to tell the player about everything they can create
 - add a visual way to tell type of an entity
-
-- add the ability for large masses to orbit around super masses
-
-- clarity of line traces (multiple canvases for different zoom levels)
-- repel ships
-- spawn ships from planets
 - sliders for zoom and object mass
-- thrusters for ships
 - less randomness
-- presets
-- have objects "evolve" as they gain mass
-- lazors
+- better sized ships
+- scale alpha based on mass
+- improve UI colors
+- grid snapping (binded to alt I guess)
+- click on objects to follow them
 
+-- Bugs --
 - fix weird ship disappearing bug
 - some camera spectator bug somewhere
-
-- slow field
-
-
-- remove unneeded help text
-- improve UI colors
+- things not disappearing on clear bug
 - fix target follow when entities are absorbed
 
+-- Dream Features --
+- experiment with larger objects moving
 - dynamic canvas
 - snapping
 - find center point
-Z- hotbar at bottom for spawning things
-
-- smaller ships
+- add camera focus rotation (switch between them automatically)
+- perhaps more game-like feautures
+- have objects "evolve" as they gain mass
+- lasers
+- slow field
+- clarity of line traces (multiple canvases for different zoom levels)
+- spawn ships from planets
+- thrusters for ships
+- presets
 
 
 -- COMPLETED --
@@ -54,3 +46,7 @@ X- repel
 X- account for zoom on clicks
 X- add a good UI
 X- link keypresses to buttons
+X-make 3 objects (add large object) > only made 2, a ship object and planet object
+X- repel ships
+X- remove unneeded help text
+X- hotbar at bottom for spawning things

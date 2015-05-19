@@ -14,6 +14,8 @@ require 'states.game'
 -- entities
 require 'entities.dotSystem'
 require 'entities.dot'
+require 'entities.ship'
+require 'entities.planet'
 require 'entities.ui.UI'
 require 'entities.ui.changeButton'
 
