@@ -14,7 +14,7 @@ function UI:initialize()
 		function() game:changeDirections(1) end,
 		function() game:changeDirections(-1) end))
 		
-	table.insert(self.bar.objects, Button:new('Follow', '(F5)', 'img/cameraIcon32.png', 50, self.height, function() game:toggleFollow() end, true, false))
+	table.insert(self.bar.objects, Button:new('Follow', '(F5)', 'img/cameraIcon32.png', 50, self.height, function() return game:toggleFollow() end, true, false))
 	table.insert(self.bar.objects, ChangeButton:new(100, self.height, function() return game:getCameraTarget() end,
 		function() game:changeCameraTarget(1) end,
 		function() game:changeCameraTarget(-1) end))
@@ -111,26 +111,26 @@ function Bar:mousepressed(x, y)
 	local index = nil
 	
 	if y >= self.y and y <= self.y + self.height then -- height is uniform for all objects on the bar
-		for i, object in ipairs(self.objects) do
-			if not self.switch or not object.on then -- if switch is on, then an object set to on already cannot be switched
-				clicked = object:mousepressed(x, y, i)
-				
-				if clicked then
-					index = i
-					break
-				end
-			end
-		end
-		
-		if self.switch and clicked then
+		if x >= self.x - self.width/2 and x <= self.x + self.width/2 then
 			for i, object in ipairs(self.objects) do
-				if i ~= index then
-					object.on = false
+				if not self.switch or not object.on then -- if switch is on, then an object set to on already cannot be switched
+					clicked = object:mousepressed(x, y, i)
+					
+					if clicked then
+						index = i
+						break
+					end
 				end
 			end
-		end
-		
-		if clicked then
+			
+			if self.switch and clicked then
+				for i, object in ipairs(self.objects) do
+					if i ~= index then
+						object.on = false
+					end
+				end
+			end
+			
 			return true
 		end
 	end
@@ -224,27 +224,29 @@ end
 
 function Button:mousepressed(x, y, i, override)
 	if override or x > self.x - self.width/2 and x < self.x + self.width/2 then -- y check has already happened at a higher level
-		self.action()
+		clicked = self.action()
 		
-		if self.toggle then
-			if self.on then
-				self.on = false
+		if clicked or clicked == nil then
+			if self.toggle then
+				if self.on then
+					self.on = false
+				else
+					self.on = true
+				end
 			else
-				self.on = true
+				--[[
+				self.clickLight = true
+				
+				self.currentIconColor = {r = self.clickedIconColor[1], g = self.clickedIconColor[2], b = self.clickedIconColor[3]}
+				tween.start(.5, game.UI.bar.objects[i].currentIconColor, {r = self.defaultIconColor[1], g = self.defaultIconColor[2], b = self.defaultIconColor[3]}, 'inOutQuad', function() 
+						self.clickLight = false
+						self.hovered = false
+					end)
+				]]
 			end
-		else
-			--[[
-			self.clickLight = true
-			
-			self.currentIconColor = {r = self.clickedIconColor[1], g = self.clickedIconColor[2], b = self.clickedIconColor[3]}
-			tween.start(.5, game.UI.bar.objects[i].currentIconColor, {r = self.defaultIconColor[1], g = self.defaultIconColor[2], b = self.defaultIconColor[3]}, 'inOutQuad', function() 
-					self.clickLight = false
-					self.hovered = false
-				end)
-			]]
-		end
 		
-		return true
+			return true
+		end
 	end
 end
 

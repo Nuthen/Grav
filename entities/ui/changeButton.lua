@@ -53,6 +53,8 @@ function ChangeButton:mousepressed(x, y, i)
 		for k, button in pairs(self.buttons) do
 			button:mousepressed(x, y)
 		end
+		
+		return true
 	end
 end
 

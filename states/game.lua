@@ -246,9 +246,13 @@ end
 function game:toggleFollow()
 	if self.camera.targetBool then
 		self.camera.targetBool = false
+		return true
 	elseif #self.dotSystem.dots > 0 then -- if at least 1 object exists to follow
 		self.camera.targetBool = true
 		self.camera.target = 1
+		return true
+	else
+		return false
 	end
 end
 
@@ -257,17 +261,19 @@ function game:getCameraTarget()
 end
 
 function game:changeCameraTarget(b)
-	if b < 0 then
-		if self.camera.target > 1 then -- assumes b is -1 or 1
-			self.camera.target = self.camera.target + b
+	if #self.dotSystem.dots > 0 then
+		if b < 0 then
+			if self.camera.target > 1 then -- assumes b is -1
+				self.camera.target = self.camera.target + b
+			else
+				self.camera.target = #self.dotSystem.dots
+			end
 		else
-			self.camera.target = #self.dotSystem.dots
-		end
-	else
-		if self.camera.target < #self.dotSystem.dots then
-			self.camera.target = self.camera.target + 1
-		else
-			self.camera.target = 1
+			if self.camera.target < #self.dotSystem.dots then
+				self.camera.target = self.camera.target + b
+			else
+				self.camera.target = 1
+			end
 		end
 	end
 end
@@ -289,13 +295,15 @@ function game:mousepressed(x, y, mbutton)
 		self.camera.zoom = self.camera.zoom - .1
 	end
 	
-	local newX, newY = self:convertCoordinates(x, y)
-	
-	local clicked = self.UI:mousepressed(x, y, mbutton)
-	
-	if not clicked then
-		self.spawnClicked = true
-		self.dotSystem:mousepressed(newX, newY, mbutton)
+	if mbutton == 'l' then
+		local newX, newY = self:convertCoordinates(x, y)
+		
+		local clicked = self.UI:mousepressed(x, y, mbutton)
+		
+		if not clicked then
+			self.spawnClicked = true
+			self.dotSystem:mousepressed(newX, newY, mbutton)
+		end
 	end
 end
 

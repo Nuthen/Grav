@@ -11,6 +11,7 @@
 - improve UI colors
 - grid snapping (binded to alt I guess)
 - click on objects to follow them
+- mass of earth compared to sun
 
 -- Bugs --
 - fix weird ship disappearing bug
@@ -19,6 +20,7 @@
 - fix target follow when entities are absorbed
 
 -- Dream Features --
+- multiple color themes
 - experiment with larger objects moving
 - dynamic canvas
 - snapping
