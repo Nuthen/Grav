@@ -43,7 +43,7 @@ function Ship:initialize(x, y, angle, speed, directions, repel, super)
 	self.gy = 0
 	
 	self.angle = angle
-	self.speed = speed/50
+	self.speed = speed/50 -- initial speed is far too fast when set
 	
 	self.vx = math.cos(self.angle)*self.speed
 	self.vy = math.sin(self.angle)*self.speed
@@ -55,44 +55,46 @@ function Ship:update(dt)
 	self.vx = self.vx + self.gx
 	self.vy = self.vy + self.gy
 	
-	self.angle = math.angle(0, 0, self.vx, self.vy)
-	self.speed = math.sqrt(self.vx^2 + self.vy^2)
+	local angle = math.angle(0, 0, self.vx, self.vy)
+	local speed = math.sqrt(self.vx^2 + self.vy^2)
+	local directions = self.directions
 	
-	if self.directions > 0 then -- calculate angle if limited
-		self.angle = math.floor((self.angle/math.rad(360/self.directions)) + .5)*math.rad(360/self.directions)
+	if directions > 0 then -- calculate angle if limited
+		angle = math.floor((angle/math.rad(360/directions)) + .5)*math.rad(360/directions)
 	end
 	
-	-- used to disconnect the variables
-	local lastX = self.x
-	local lastY = self.y
+	self.lastX = self.x
+	self.lastY = self.y
 	
-	self.lastX = lastX
-	self.lastY = lastY
-	
-	self.x = self.x + math.cos(self.angle)*self.speed
-	self.y = self.y + math.sin(self.angle)*self.speed
-	
+	self.x = self.x + math.cos(angle)*speed
+	self.y = self.y + math.sin(angle)*speed
 	
 	-- change h based on speed
-	self.h = self.hBase + self.speed
+	self.h = self.hBase + speed
+	
+	self.angle = angle
+	self.speed = speed
 end
 
 function Ship:draw()
 	love.graphics.setColor(self.color)
 	
-	if self.angle then -- draw a triangle
+	local angle = self.angle
+	if angle then -- draw a triangle
+		local x, y = self.x, self.y
 		local w = self.size
-		local h = self.h -- the faster it is moving, the taller the object will be
-		love.graphics.polygon('fill', self.x + math.cos(self.angle - math.rad(90))*w, self.y + math.sin(self.angle - math.rad(90))*w, 
-											  self.x + math.cos(self.angle + math.rad(90))*w, self.y + math.sin(self.angle + math.rad(90))*w,
-											  self.x + math.cos(self.angle)*h, self.y + math.sin(self.angle)*h)
+		local h = self.h
+		
+		love.graphics.polygon('fill', x + math.cos(angle - math.rad(90))*w, y + math.sin(angle - math.rad(90))*w, 
+											  x + math.cos(angle + math.rad(90))*w, y + math.sin(angle + math.rad(90))*w,
+											  x + math.cos(angle)*h, y + math.sin(angle)*h)
 											  
 		if self.repel then
 			love.graphics.setLineWidth(self.bandWidth)
 			love.graphics.setColor(self.bandColor)
-			love.graphics.polygon('line', self.x + math.cos(self.angle - math.rad(90))*w, self.y + math.sin(self.angle - math.rad(90))*w, 
-												  self.x + math.cos(self.angle + math.rad(90))*w, self.y + math.sin(self.angle + math.rad(90))*w,
-												  self.x + math.cos(self.angle)*h, self.y + math.sin(self.angle)*h)
+			love.graphics.polygon('line', x + math.cos(angle - math.rad(90))*w, y + math.sin(angle - math.rad(90))*w, 
+												  x + math.cos(angle + math.rad(90))*w, y + math.sin(angle + math.rad(90))*w,
+												  x + math.cos(angle)*h, y + math.sin(angle)*h)
 		end
 	end
 end
@@ -113,7 +115,6 @@ function Ship:setMass(massPercent)
 	
 	self.color[4] = self.alpha
 	
-	local hBase = self.size+10*(1000-self.size)/2000
-	self.hBase = hBase
-	self.h = hBase
+	self.hBase = self.size + (1000-self.size)/200
+	self.h = self.hBase
 end

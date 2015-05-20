@@ -27,9 +27,15 @@ function menu:mousepressed(x, y, mbutton)
 end
 
 function menu:draw()
+	local text = 'Grav'
+	local x = love.window.getWidth()/2 - fontLight[164]:getWidth(text)/2
+    local y = love.window.getHeight()*1/3
+	love.graphics.setFont(fontLight[164])
+    love.graphics.print(text, x, y)
+	
     local text = "ENTER"
     local x = love.window.getWidth()/2 - font[48]:getWidth(text)/2
-    local y = love.window.getHeight()/2
+    local y = love.window.getHeight()*2/3
     love.graphics.setFont(font[48])
     love.graphics.print(text, x, y)
 end

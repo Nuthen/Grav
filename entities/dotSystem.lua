@@ -6,18 +6,18 @@ function DotSystem:initialize()
 	self.maxG = .5 -- prevents gravity from causing objects to go infinitely fast as they get infinitely close
 	self.minG = -.5 -- most acceleration a repel object can have
 	
+	-- changable variables
 	self.limit = false -- if angles of entities should be limited
 	self.directions = 8 -- number of directions an object can move in if self.limit is true
+	self.traceAlpha = 255
+	self.traceBrightness = .4 -- percent
+	self.arrowWidth = 4
 	
+	-- do not change
 	self.spawning = false -- true while dragging a starting velocity to create an object
 	self.spawnX = 0
 	self.spawnY = 0
-	
 	self.special = false
-	
-	self.traceAlpha = 255
-	
-	self.arrowWidth = 4
 end
 
 function DotSystem:update(dt, freeze)
@@ -30,17 +30,19 @@ function DotSystem:update(dt, freeze)
 					local angle = math.angle(dot.x, dot.y, dot2.x, dot2.y)
 					
 					local g = dot2.mass/(dist^2) -- gravity formula
-					if dot2.repel then
-						g = g * -1
-					end
-					
+					if dot2.repel then g = g * -1 end
 					if g > self.maxG then g = self.maxG end
 					if g < self.minG then g = self.minG end
+					
 					gx = gx + math.cos(angle)*g
 					gy = gy + math.sin(angle)*g
 					
 					if game.absorb and dist < (dot.size + dot2.size) then -- objects overlap, one is absorbed
-						self:absorbObject(dot, dot2, dist)
+						if dot.mass > dot2.mass then -- reverse these two for fun
+							self:absorbObject(dot, dot2, dist)
+						elseif dot2.mass > dot.mass then
+							self:absorbObject(dot2, dot, dist)
+						end -- nothing happens if 2 objects are the same mass
 					end
 				end
 			end
@@ -56,6 +58,7 @@ function DotSystem:update(dt, freeze)
 		if dot.destroy then
 			table.remove(self.dots, i)
 			
+			-- fix camera target
 			if i == game.camera.target then
 				if game.camera.targetBool then
 					if #self.dots <= game.camera.target and game.camera.target > 1 then
@@ -85,8 +88,12 @@ function DotSystem:update(dt, freeze)
 				love.graphics.setLineWidth(game.traceWidth)
 				
 				for i, dot in ipairs(self.dots) do
-					love.graphics.setColor(dot.color[1], dot.color[2], dot.color[3], self.traceAlpha)
-					love.graphics.line(dot.lastX - game.camera.x, dot.lastY - game.camera.y, dot.x - game.camera.x, dot.y - game.camera.y) -- draws a line between each objects current and last point on the canvas
+					local brightness = self.traceBrightness
+					local r = dot.color[1] + math.floor(brightness * (255-dot.color[1] ))
+					local g = dot.color[2] + math.floor(brightness * (255-dot.color[2] ))
+					local b = dot.color[3] + math.floor(brightness * (255-dot.color[3] ))
+					love.graphics.setColor(r, g, b, self.traceAlpha)
+					love.graphics.line(dot.lastX - game.camera.x, dot.lastY - game.camera.y, dot.x - game.camera.x, dot.y - game.camera.y) -- draws a line between each objects current and last point onto the canvas
 				end
 				
 				love.graphics.pop()
@@ -102,13 +109,21 @@ function DotSystem:update(dt, freeze)
 	end
 end
 
-function DotSystem:absorbObject(dot, dot2, dist)
+function DotSystem:absorbObject(dot, dot2, dist) -- dot.mass always greater than dot2.mass
 	local overlap = (dot.size+dot2.size)-dist -- distance shared between both objects
-	if dot.mass > dot2.mass then
+	
+	if overlap > 0 and dot.size > 0 and dot2.size > 0 then
 		local dot2Percent = overlap/dot2.size -- distance shared / total size
 		local massLoss = dot2.mass * dot2Percent -- mass taken away is based on the percent of size taken away
 		
-		dot.size = dot.size + overlap / 100 -- increase size less drastically
+		if overlap > dot2.size then overlap = dot2.size end
+		if massLoss > dot2.mass then massLoss = dot2.mass end
+		
+		local dot2Initial = dot2.size
+		local dot2Final = dot2.size - overlap
+		
+		-- Area1Final = Area1Initial + (Area2Initial - Area2Final)
+		dot.size = math.sqrt(dot.size^2 + dot2Initial^2 - dot2Final^2) -- based on area
 		dot2.size = dot2.size - overlap
 		dot.mass = dot.mass + massLoss
 		dot2.mass = dot2.mass - massLoss
@@ -116,29 +131,10 @@ function DotSystem:absorbObject(dot, dot2, dist)
 		if dot2.mass <= 0 or dot2.size <= 0 then -- if nothing is left - destroy
 			dot2.destroy = true
 		end
-	elseif dot2.mass > dot.mass then
-		local dotPercent = overlap/dot.size
-		local massLoss = dot.mass * dotPercent
 		
-		dot2.size = dot2.size + overlap / 100
-		dot.size = dot.size - overlap
-		dot2.mass = dot2.mass + massLoss
-		dot.mass = dot.mass - massLoss
-		
-		if dot.mass <= 0 or dot.size <= 0 then
-			dot.destroy = true
-		end
+		if dot.mass > dot.massMax then dot.massMax = dot.mass end
+		if dot2.mass < dot2.massMin then dot2.massMin = dot2.mass end
 	end
-	
-	if dot.mass > dot.massMin then dot.massMin = dot.mass end
-	if dot2.mass > dot2.massMin then dot2.massMin = dot2.mass end
-	
-	if dot.mass > dot.massMin then dot.massMin = dot.mass end
-	if dot2.mass > dot2.massMin then dot2.massMin = dot2.mass end
-end
-
-function DotSystem:keypressed(key, isrepeat)
-	
 end
 
 function DotSystem:mousepressed(x, y, mbutton) -- will always be a left click

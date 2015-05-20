@@ -3,14 +3,14 @@
 -- Important --
 
 -- Bugs --
-- fix weird ship disappearing bug
 - some camera spectator bug somewhere
-- things not disappearing on clear bug
 - fix target follow when entities are absorbed
 - fix draw order
 - camera bugs
 
 -- Dream Features --
+- zoom towards mouse
+- line erase mode (no color to traces and do not make the canvas white at the start)
 - add impulses
 - place objects over each other
 - fix minimum resize
@@ -22,9 +22,9 @@
 - increase/reduce speed
 - multiple color themes
 - experiment with larger objects moving
-- dynamic canvas
+- dynamic canvas creation (create a smaller canvas where it is needed)
 - snapping
-- find center point
+- find center point of gravity (where gravity is 0)
 - add camera focus rotation (switch between them automatically)
 - perhaps more game-like feautures
 - have objects "evolve" as they gain mass
@@ -63,3 +63,6 @@ X- added tag for change buttons
 X- position mass pane on window resize
 X- improve UI colors
 X- add a visual way to tell type of an entity
+X- base absorb gain on area
+X- fix weird ship disappearing bug
+X- things not disappearing on clear bug
