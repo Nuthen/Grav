@@ -4,7 +4,7 @@ function DotSystem:initialize()
 	self.dots = {}
 	
 	self.maxG = .5 -- prevents gravity from causing objects to go infinitely fast as they get infinitely close
-	self.minG = -.5 -- most acceleration a repel object can have
+	self.minG = -5 -- most acceleration a repel object can have
 	
 	-- changable variables
 	self.limit = false -- if angles of entities should be limited
@@ -143,7 +143,7 @@ function DotSystem:mousepressed(x, y, mbutton) -- will always be a left click
 		if math.dist(x, y, object.x, object.y) <= object.size then -- set it to follow
 			clicked = true
 			game.UI:updateButton('Follow', i)
-			break
+			return true
 		end
 	end
 	

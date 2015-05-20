@@ -37,29 +37,29 @@ end
 
 function Pane:update()
 	if self.display() then
-		if love.mouse.isDown('l') then
-			if not game.dotSystem.spawning then -- fix
-				local x, y = self.x, self.y
-				local w, h = self.width, self.height
+		if love.mouse.isDown('l') and not game.dotSystem.spawning then -- fix
+			local x, y = self.x, self.y
+			local w, h = self.width, self.height
+			
+			local clicked = false
 				
-				local clicked = false
-					
-				local mX, mY = love.mouse:getPosition()
-				if y - h/2 <= mY and y + h/2 >= mY or self.slider.moving then
-					if x - w/2 <= mX and x + w/2 >= mX or self.slider.moving then
-						clicked = self.slider:update()
-						self.setVar(self.slider.sliderPos)
-					end
+			local mX, mY = love.mouse:getPosition()
+			if y - h/2 <= mY and y + h/2 >= mY or self.slider.moving then
+				if x - w/2 <= mX and x + w/2 >= mX or self.slider.moving then
+					clicked = self.slider:update()
+					self.setVar(self.slider.sliderPos)
 				end
-				
-				self.variable, self.slider.sliderPos = self.var()
-				if clicked then
-					self.moving = false
-				end
-			else
-				self.slider.moving = false
+			end
+			
+			local initial = self.variable
+			self.variable, self.slider.sliderPos = self.var()
+			
+			if clicked then
 				self.moving = false
 			end
+		else
+			self.slider.moving = false
+			self.moving = false
 		end
 	end
 end

@@ -263,6 +263,10 @@ function game:draw()
 end
 
 function game:resize(w, h)
+	-- origin
+	self.startX = self.canvas:getWidth()/2 - love.graphics.getWidth()/2
+	self.startY = self.canvas:getHeight()/2 - love.graphics.getHeight()/2
+
 	self.UI:resize(w, h)
 end
 
@@ -344,10 +348,11 @@ function game:toggleFollow(target)
 	if self.camera.targetBool then
 		if target then
 			self.camera.target = target
+			return false
 		else
 			self.camera.targetBool = false
+			return true
 		end
-		return true
 	elseif #self.dotSystem.dots > 0 then -- if at least 1 object exists to follow
 		self.camera.targetBool = true
 		self.camera.target = target or 1

@@ -9,6 +9,9 @@
 - camera bugs
 
 -- Dream Features --
+- seperate max repel for ships and planets
+- better repel gravity system
+- fullscreen mode
 - zoom towards mouse
 - line erase mode (no color to traces and do not make the canvas white at the start)
 - add impulses
