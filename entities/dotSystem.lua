@@ -4,6 +4,7 @@ function DotSystem:initialize()
 	self.dots = {}
 	
 	self.maxG = .5 -- prevents gravity from causing objects to go infinitely fast as they get infinitely close
+	self.minG = -.5 -- most acceleration a repel object can have
 	
 	self.limit = false -- if angles of entities should be limited
 	self.directions = 8 -- number of directions an object can move in if self.limit is true
@@ -34,6 +35,7 @@ function DotSystem:update(dt, freeze)
 					end
 					
 					if g > self.maxG then g = self.maxG end
+					if g < self.minG then g = self.minG end
 					gx = gx + math.cos(angle)*g
 					gy = gy + math.sin(angle)*g
 					

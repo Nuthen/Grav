@@ -8,8 +8,10 @@
 - things not disappearing on clear bug
 - fix target follow when entities are absorbed
 - fix draw order
+- camera bugs
 
 -- Dream Features --
+- add impulses
 - place objects over each other
 - fix minimum resize
 - toggle lines to show object speed

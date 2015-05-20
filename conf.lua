@@ -3,7 +3,7 @@ function love.conf(t)
     t.version = "0.9.2"                -- The LÖVE version this game was made for (string)
     t.console = false                  -- Attach a console (boolean, Windows only)
 
-    t.window.title = "Gravity"        -- The window title (string)
+    t.window.title = "Grav"        -- The window title (string)
     t.window.icon = nil                -- Filepath to an image to use as the window's icon (string)
     t.window.width = 1024              -- The window width (number)
     t.window.height = 768              -- The window height (number)
@@ -35,8 +35,8 @@ end
 config = {
     debug = true,
 
-    gameTitle = "Gravity",
-    windowTitle = "Gravity",
+    gameTitle = "Grav",
+    windowTitle = "Grav",
     windowIcon = 'img/icon-dots.png',
 
     -- see: http://love2d.org/wiki/love.graphics.setDefaultFilter
