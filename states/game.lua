@@ -38,6 +38,11 @@ function game:enter()
 	self.UI = UI:new()
 	
 	self.spawnClicked = false
+	
+	self.t = 0
+    self.shader = love.graphics.newShader('shaders/fractaltiling.glsl')
+	self.shader:send('iResolution', {love.graphics.getWidth(), love.graphics.getHeight() })
+	self.shader:send('iGlobalTime', self.t)
 end
 
 function game:update(dt)
@@ -68,6 +73,10 @@ function game:update(dt)
 	end
 	
 	self.UI:update()
+	
+	
+	self.t = self.t+dt
+	self.shader:send('iGlobalTime', self.t)
 end
 
 function game:keypressed(key, isrepeat)
@@ -226,9 +235,12 @@ function game:draw()
 		love.graphics.draw(self.canvas)
 	end
 	
+	
+	love.graphics.setShader(self.shader)
 	if not self.hideObjects then -- draw entities
 		self.dotSystem:draw()
 	end
+	love.graphics.setShader()
 	
 	if self.showCenter then -- draw axis at the center
 		love.graphics.setLineWidth(self.axisWidth/self.camera.zoom)
