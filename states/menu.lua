@@ -3,7 +3,8 @@ menu = {}
 function menu:enter()
 	self.t = 0
 
-    self.shader = love.graphics.newShader('shaders/fractaltiling.glsl')
+    --self.shader = love.graphics.newShader('shaders/fractaltiling.glsl')
+	self.shader = love.graphics.newShader('shaders/seascape.glsl')
 	self.shader:send('iResolution', {love.graphics.getWidth(), love.graphics.getHeight() })
 	self.shader:send('iGlobalTime', self.t)
 end
