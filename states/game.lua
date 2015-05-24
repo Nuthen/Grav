@@ -16,8 +16,9 @@ function game:enter()
 	self.zoomMax = 3
 	self.snap = 20
 	self.gridLineWidth = 2
+	self.snapDotSize = 8
 	
-	self.gridColor = {100, 105, 104, 150}
+	self.gridColor = {127, 129, 130, 150}
 	
 	self.font = font[24]
 	
@@ -271,7 +272,7 @@ function game:draw()
 		
 		local snapX, snapY = self:snapCoordinates(love.mouse.getX(), love.mouse.getY())
 		love.graphics.setColor(255, 0, 0, 150)
-		love.graphics.circle('fill', snapX, snapY, 10)
+		love.graphics.circle('fill', snapX, snapY, self.snapDotSize)
 	end
 	
 	love.graphics.push()
@@ -360,8 +361,8 @@ end
 
 function game:snapCoordinates(x, y)
 	local snap = self.snap
-	local dx, dy = (-self.camera.x % snap), (-self.camera.y % snap)
-	local newX, newY = math.floor(x/snap + .5) * snap + dx, math.floor(y/snap) * snap + dy
+	local dx, dy = -(self.camera.x % snap), -(self.camera.y % snap)
+	local newX, newY = math.floor((x-dx)/snap + .5) * snap + dx, math.floor((y-dy)/snap + .5) * snap + dy
 	
 	return newX, newY
 end
