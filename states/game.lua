@@ -8,11 +8,16 @@ function game:enter()
 	self.freeze = false
 	self.hideObjects = false
 	self.absorb = false
-	self.traceWidth = 2
 	self.lines = true
+	self.grid = false
+	self.traceWidth = 2
 	self.axisWidth = 2
 	self.spawnObjectName = 'ship'
 	self.zoomMax = 3
+	self.snap = 20
+	self.gridLineWidth = 2
+	
+	self.gridColor = {100, 105, 104, 150}
 	
 	self.font = font[24]
 	
@@ -38,12 +43,7 @@ function game:enter()
 	self.UI = UI:new()
 	
 	self.spawnClicked = false
-	
-	self.t = 0
-    --self.shader = love.graphics.newShader('shaders/fractaltiling.glsl')
-	self.shader = love.graphics.newShader('shaders/seascape.glsl')
-	self.shader:send('iResolution', {love.graphics.getWidth(), love.graphics.getHeight() })
-	self.shader:send('iGlobalTime', self.t)
+	self.oldScreenWidth, self.oldScreenHeight = love.graphics.getWidth(), love.graphics.getHeight()
 end
 
 function game:update(dt)
@@ -74,10 +74,6 @@ function game:update(dt)
 	end
 	
 	self.UI:update()
-	
-	
-	self.t = self.t+dt
-	self.shader:send('iGlobalTime', self.t)
 end
 
 function game:keypressed(key, isrepeat)
@@ -118,6 +114,24 @@ function game:keypressed(key, isrepeat)
 		self.UI:updateButton('Clear')
 	end
 	
+	-- toggle help text
+	if key == 'f9' then
+		if self.help then
+			self.help = false
+		else
+			self.help = true
+		end
+	end
+	
+	-- toggle grid snapping
+	if key == 'f10' then
+		if self.grid then
+			self.grid = false
+		else
+			self.grid = true
+		end
+	end
+	
 	-- toggle crosshair in the center
 	if key == 'f11' then
 		if self.showCenter then
@@ -127,13 +141,9 @@ function game:keypressed(key, isrepeat)
 		end
 	end
 	
-	-- toggle help text
+	-- toggle fullscreen
 	if key == 'f12' then
-		if self.help then
-			self.help = false
-		else
-			self.help = true
-		end
+		self:toggleFullscreen()
 	end
 	
 	-- pause simulation, useful for setting up objects
@@ -198,11 +208,15 @@ function game:mousepressed(x, y, mbutton)
 	end
 	
 	if mbutton == 'l' then
-		local newX, newY = self:convertCoordinates(x, y)
-		
 		local clicked = self.UI:mousepressed(x, y, mbutton)
 		
 		if not clicked then
+			if love.keyboard.isDown('lalt', 'ralt') or self.grid then
+				x, y = game:snapCoordinates(x, y)
+			end
+		
+			local newX, newY = self:convertCoordinates(x, y)
+			
 			self.spawnClicked = true
 			self.dotSystem:mousepressed(newX, newY, mbutton)
 		end
@@ -210,6 +224,10 @@ function game:mousepressed(x, y, mbutton)
 end
 
 function game:mousereleased(x, y, button)
+	if love.keyboard.isDown('lalt', 'ralt') or self.grid then
+		x, y = game:snapCoordinates(x, y)
+	end
+	
 	local newX, newY = self:convertCoordinates(x, y)
 	
 	if self.spawnClicked then
@@ -229,14 +247,39 @@ function game:draw()
 	love.graphics.scale(self.camera.zoom)
 	love.graphics.translate(-love.graphics.getWidth()/2, -love.graphics.getHeight()/2)
 	
+	
 	-- translate to screen coordinates
 	love.graphics.translate(-self.camera.x, -self.camera.y)
 	
 	if self.lines then -- draw line traces
-		love.graphics.setShader(self.shader)
 		love.graphics.draw(self.canvas)
-		love.graphics.setShader()
 	end
+	love.graphics.pop()
+	
+	if love.keyboard.isDown('lalt', 'ralt') or self.grid then
+		love.graphics.setColor(self.gridColor)
+		love.graphics.setLineWidth(self.gridLineWidth)
+		
+		local snap = self.snap
+		local dx, dy = (-self.camera.x % snap) - snap, (-self.camera.y % snap) - snap
+		for i = 1, math.floor(love.graphics.getWidth()/snap) + 1 do
+			love.graphics.line(snap*i + dx, dy, snap*i + dx, love.graphics.getHeight() + dy + snap)
+		end
+		for i = 1, math.floor(love.graphics.getHeight()/snap) + 1 do
+			love.graphics.line(dx, snap*i + dy, love.graphics.getWidth() + dx + snap, snap*i + dy)
+		end
+	end
+	
+	love.graphics.push()
+	
+	-- translate to origin, scale, translate back
+	love.graphics.translate(love.graphics.getWidth()/2, love.graphics.getHeight()/2)
+	love.graphics.scale(self.camera.zoom)
+	love.graphics.translate(-love.graphics.getWidth()/2, -love.graphics.getHeight()/2)
+	
+	
+	-- translate to screen coordinates
+	love.graphics.translate(-self.camera.x, -self.camera.y)
 	
 	
 	if not self.hideObjects then -- draw entities
@@ -264,8 +307,11 @@ function game:draw()
 		table.insert(helpText, 'Zoom (wheel): '..self.camera.zoom)
 		table.insert(helpText, 'Click on objects to change mass')
 		table.insert(helpText, 'Total Objects: '..#self.dotSystem.dots)
+		table.insert(helpText, 'Delete Object (delete)')
+		table.insert(helpText, 'Hide Help (F9)')
+		table.insert(helpText, 'Show Grid (F10/alt)')
 		table.insert(helpText, 'Hide Axis (F11)')
-		table.insert(helpText, 'Hide Help (F12)')
+		table.insert(helpText, 'Fullscreen (F12)')
 		
 		for i = 1, #helpText do
 			love.graphics.print(helpText[i], 5, 50+28*i)
@@ -281,6 +327,8 @@ function game:resize(w, h)
 	self.startY = self.canvas:getHeight()/2 - love.graphics.getHeight()/2
 
 	self.UI:resize(w, h)
+	
+	self.UI:updateButton('Origin')
 end
 
 function game:mousemoved(x, y, dx, dy)
@@ -306,6 +354,29 @@ function game:convertCoordinates(x, y)
 	return x, y
 end
 
+function game:snapCoordinates(x, y)
+	local snap = self.snap
+	local dx, dy = (-self.camera.x % snap) - snap, (-self.camera.y % snap) - snap
+	local newX, newY = math.floor(x/snap + .5) * snap + dx, math.floor(y/snap + .5) * snap + dy
+	
+	return newX, newY
+end
+
+
+function game:toggleFullscreen()
+	if love.window.getFullscreen() then
+		local width, height = self.oldScreenWidth, self.oldScreenHeight
+		love.window.setMode(width, height, {fullscreen = false, fsaa = 4, resizable = true, centered = false})
+		self:resize(width, height)
+	else
+		self.oldScreenWidth, self.oldScreenHeight = love.graphics.getWidth(), love.graphics.getHeight()
+	
+		local width, height = love.window.getDesktopDimensions()
+		love.window.setMode(width, height, {fullscreen = true, fsaa = 4})
+		
+		self:resize(width, height)
+	end
+end
 
 -- UI Button Functions
 

@@ -18,6 +18,7 @@ function DotSystem:initialize()
 	self.spawnX = 0
 	self.spawnY = 0
 	self.special = false
+	self.initialSnap = false
 end
 
 function DotSystem:update(dt, freeze)
@@ -216,7 +217,14 @@ function DotSystem:draw()
 		
 		-- spawn arrow
 		love.graphics.setLineWidth(self.arrowWidth/game.camera.zoom)
-		local newX, newY = game:convertCoordinates(love.mouse.getX(), love.mouse.getY())
+		
+		local mX, mY = love.mouse.getX(), love.mouse.getY()
+		if love.keyboard.isDown('lalt', 'ralt') or game.grid then
+			mX, mY = game:snapCoordinates(mX, mY)
+		end
+		
+		local newX, newY = game:convertCoordinates(mX, mY)
+		
 		love.graphics.line(self.spawnX, self.spawnY, newX, newY) -- initial vector indicator when dragging
 		local angle = math.angle(self.spawnX, self.spawnY, newX, newY)
 		local turn = 30 -- degrees

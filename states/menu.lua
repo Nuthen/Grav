@@ -1,18 +1,11 @@
 menu = {}
 
 function menu:enter()
-	self.t = 0
 
-    --self.shader = love.graphics.newShader('shaders/fractaltiling.glsl')
-	self.shader = love.graphics.newShader('shaders/seascape.glsl')
-	self.shader:send('iResolution', {love.graphics.getWidth(), love.graphics.getHeight() })
-	self.shader:send('iGlobalTime', self.t)
 end
 
 function menu:update(dt)
-	self.t = self.t+dt
-	
-	self.shader:send('iGlobalTime', self.t)
+
 end
 
 function menu:keypressed(key, code)
@@ -34,8 +27,6 @@ function menu:mousepressed(x, y, mbutton)
 end
 
 function menu:draw()
-	love.graphics.setShader(self.shader)
-
 	local text = 'Grav'
 	local x = love.window.getWidth()/2 - fontLight[164]:getWidth(text)/2
     local y = love.window.getHeight()*1/3
@@ -47,6 +38,4 @@ function menu:draw()
     local y = love.window.getHeight()*2/3
     love.graphics.setFont(font[48])
     love.graphics.print(text, x, y)
-	
-	love.graphics.setShader()
 end
