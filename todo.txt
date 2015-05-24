@@ -11,14 +11,12 @@
 -- Dream Features --
 - seperate max repel for ships and planets
 - better repel gravity system
-- fullscreen mode
 - zoom towards mouse
 - line erase mode (no color to traces and do not make the canvas white at the start)
 - add impulses
 - place objects over each other
 - fix minimum resize
 - toggle lines to show object speed
-- grid snapping (binded to alt I guess)
 - look at mass of earth compared to sun
 - add a ship spawner
 - make trace colors lighter with less mass
@@ -26,7 +24,6 @@
 - multiple color themes
 - experiment with larger objects moving
 - dynamic canvas creation (create a smaller canvas where it is needed)
-- snapping
 - find center point of gravity (where gravity is 0)
 - add camera focus rotation (switch between them automatically)
 - perhaps more game-like feautures
@@ -69,3 +66,5 @@ X- add a visual way to tell type of an entity
 X- base absorb gain on area
 X- fix weird ship disappearing bug
 X- things not disappearing on clear bug
+X- fullscreen mode
+X- grid snapping (binded to alt I guess)

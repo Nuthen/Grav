@@ -268,6 +268,10 @@ function game:draw()
 		for i = 1, math.floor(love.graphics.getHeight()/snap) + 1 do
 			love.graphics.line(dx, snap*i + dy, love.graphics.getWidth() + dx + snap, snap*i + dy)
 		end
+		
+		local snapX, snapY = self:snapCoordinates(love.mouse.getX(), love.mouse.getY())
+		love.graphics.setColor(255, 0, 0, 150)
+		love.graphics.circle('fill', snapX, snapY, 10)
 	end
 	
 	love.graphics.push()
@@ -356,8 +360,8 @@ end
 
 function game:snapCoordinates(x, y)
 	local snap = self.snap
-	local dx, dy = (-self.camera.x % snap) - snap, (-self.camera.y % snap) - snap
-	local newX, newY = math.floor(x/snap + .5) * snap + dx, math.floor(y/snap + .5) * snap + dy
+	local dx, dy = (-self.camera.x % snap), (-self.camera.y % snap)
+	local newX, newY = math.floor(x/snap + .5) * snap + dx, math.floor(y/snap) * snap + dy
 	
 	return newX, newY
 end
