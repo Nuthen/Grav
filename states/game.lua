@@ -17,6 +17,7 @@ function game:enter()
 	self.snap = 20
 	self.gridLineWidth = 2
 	self.snapDotSize = 8
+	self.gameSpeed = 50
 	
 	self.gridColor = {127, 129, 130, 150}
 	
@@ -48,7 +49,8 @@ function game:enter()
 end
 
 function game:update(dt)
-	self.dotSystem:update(dt, self.freeze)
+
+	self.dotSystem:update(dt * self.gameSpeed, self.freeze)
 	
 	if self.camera.targetBool then -- focused camera
 		if self.dotSystem.dots[self.camera.target] then

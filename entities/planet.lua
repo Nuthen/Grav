@@ -58,8 +58,10 @@ function Planet:update(dt)
 		self.vx = self.vx + self.gx
 		self.vy = self.vy + self.gy
 		
-		local angle = math.angle(0, 0, self.vx, self.vy)
-		local speed = math.sqrt(self.vx^2 + self.vy^2)
+		local vx, vy = self.vx, self.vy
+	
+		local angle = math.angle(0, 0, vx, vy)
+		local speed = math.sqrt(vx^2 + vy^2)
 		local directions = self.directions
 		
 		if directions > 0 then -- calculate angle if limited
@@ -69,8 +71,8 @@ function Planet:update(dt)
 		self.lastX = self.x
 		self.lastY = self.y
 		
-		self.x = self.x + math.cos(angle)*speed
-		self.y = self.y + math.sin(angle)*speed
+		self.x = self.x + math.cos(angle)*speed*dt
+		self.y = self.y + math.sin(angle)*speed*dt
 		
 		-- change h based on speed
 		self.h = self.hBase + speed
